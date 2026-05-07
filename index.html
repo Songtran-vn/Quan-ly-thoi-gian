@@ -18,10 +18,8 @@
     --text-dark: #1a1610;
     --text-mid: #4a4238;
     --text-soft: #8a7d6e;
-    --shadow: rgba(90, 70, 30, 0.12);
-    --shadow-deep: rgba(90, 70, 30, 0.22);
+    --shadow: rgba(90,70,30,0.12);
   }
-
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   body {
@@ -31,150 +29,177 @@
     min-height: 100vh;
     overflow-x: hidden;
   }
-
-  /* Background texture */
   body::before {
     content: '';
-    position: fixed;
-    inset: 0;
+    position: fixed; inset: 0;
     background-image:
       radial-gradient(ellipse at 20% 20%, rgba(212,175,87,0.06) 0%, transparent 60%),
       radial-gradient(ellipse at 80% 80%, rgba(184,151,46,0.05) 0%, transparent 50%);
-    pointer-events: none;
-    z-index: 0;
+    pointer-events: none; z-index: 0;
   }
 
+  /* ── LAYOUT ── */
   .page-wrap {
-    position: relative;
-    z-index: 1;
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 48px 24px 80px;
+    position: relative; z-index: 1;
+    max-width: 960px; margin: 0 auto;
+    padding: 20px 20px 60px;
+    display: grid;
+    grid-template-columns: 340px 1fr;
+    grid-template-rows: auto 1fr auto;
+    gap: 20px;
+    min-height: 100vh;
   }
 
-  /* ── HEADER ── */
-  header {
-    text-align: center;
-    margin-bottom: 52px;
-  }
-
-  .logo-mark {
-    display: inline-flex;
-    align-items: center;
-    gap: 14px;
-    margin-bottom: 10px;
-  }
-
-  .logo-line {
-    width: 48px;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, var(--gold-line));
-  }
-  .logo-line.right {
-    background: linear-gradient(90deg, var(--gold-line), transparent);
-  }
-
-  .logo-diamond {
-    width: 7px;
-    height: 7px;
-    background: var(--gold);
-    transform: rotate(45deg);
-  }
-
-  h1 {
-    font-family: 'DM Serif Display', serif;
-    font-size: clamp(1.9rem, 4vw, 2.8rem);
-    font-weight: 400;
-    letter-spacing: 0.12em;
-    color: var(--text-dark);
-    text-transform: uppercase;
-  }
-
-  .subtitle {
-    font-size: 0.7rem;
-    font-weight: 300;
-    letter-spacing: 0.35em;
-    color: var(--text-soft);
-    text-transform: uppercase;
-    margin-top: 6px;
-  }
-
-  /* ── CARD ── */
-  .card {
+  /* Timer card — left column, rows 1+2 */
+  .timer-card {
+    grid-column: 1;
+    grid-row: 1 / 3;
     background: #fff;
     border: 1px solid var(--parchment);
     border-radius: 2px;
-    box-shadow: 0 2px 24px var(--shadow), 0 0 0 1px rgba(255,255,255,0.8) inset;
-    padding: 40px 44px;
-    margin-bottom: 28px;
+    box-shadow: 0 2px 24px var(--shadow);
+    padding: 32px 28px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: sticky;
+    top: 20px;
+    align-self: start;
+  }
+
+  /* Table card — right column, row 1 */
+  .table-card {
+    grid-column: 2;
+    grid-row: 1 / 3;
+    background: #fff;
+    border: 1px solid var(--parchment);
+    border-radius: 2px;
+    box-shadow: 0 2px 24px var(--shadow);
+    padding: 28px 28px;
+  }
+
+  /* Settings card — full width, row 3 */
+  .settings-card {
+    grid-column: 1 / 3;
+    grid-row: 3;
+    background: #fff;
+    border: 1px solid var(--parchment);
+    border-radius: 2px;
+    box-shadow: 0 2px 24px var(--shadow);
+    padding: 22px 28px;
   }
 
   .section-label {
-    font-size: 0.62rem;
+    font-size: 0.58rem;
     font-weight: 500;
     letter-spacing: 0.38em;
     text-transform: uppercase;
     color: var(--gold);
-    margin-bottom: 28px;
+    margin-bottom: 22px;
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
+    width: 100%;
   }
   .section-label::after {
     content: '';
-    flex: 1;
-    height: 1px;
+    flex: 1; height: 1px;
     background: linear-gradient(90deg, var(--parchment), transparent);
+  }
+
+  /* ── RECENT TASKS (above timer) ── */
+  .recent-tasks {
+    width: 100%;
+    margin-bottom: 24px;
+  }
+  .recent-label {
+    font-size: 0.55rem;
+    font-weight: 500;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .recent-label::after {
+    content: ''; flex: 1; height: 1px;
+    background: linear-gradient(90deg, var(--parchment), transparent);
+  }
+  .recent-item {
+    padding: 8px 10px;
+    border-left: 2px solid var(--parchment);
+    margin-bottom: 6px;
+    background: var(--ivory);
+    border-radius: 0 2px 2px 0;
+    transition: border-color 0.2s;
+  }
+  .recent-item:first-child { border-left-color: var(--gold-line); }
+  .recent-task-text {
+    font-size: 0.78rem;
+    font-weight: 400;
+    color: var(--text-dark);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .recent-task-meta {
+    font-size: 0.62rem;
+    color: var(--text-soft);
+    margin-top: 2px;
+  }
+  .recent-empty {
+    font-size: 0.72rem;
+    color: var(--text-soft);
+    font-style: italic;
+    text-align: center;
+    padding: 8px 0;
   }
 
   /* ── TIMER ── */
   .timer-display {
     text-align: center;
-    margin-bottom: 28px;
+    width: 100%;
+    margin-bottom: 20px;
   }
-
   .timer-clock {
     font-family: 'Outfit', sans-serif;
-    font-size: clamp(4.5rem, 15vw, 8rem);
+    font-size: clamp(4rem, 10vw, 6rem);
     font-weight: 300;
     font-variant-numeric: tabular-nums;
     letter-spacing: 0.04em;
     color: var(--text-dark);
     line-height: 1;
     transition: color 0.4s;
-    position: relative;
-    display: inline-block;
+    display: block;
   }
-
   .timer-clock.running { color: var(--gold); }
   .timer-clock.ending { color: #c0392b; }
-
-  .timer-clock::after {
-    content: attr(data-label);
-    display: block;
-    font-size: 0.62rem;
-    font-family: 'Outfit', sans-serif;
+  .timer-sublabel {
+    font-size: 0.58rem;
     font-weight: 400;
-    letter-spacing: 0.38em;
+    letter-spacing: 0.36em;
     color: var(--text-soft);
     text-transform: uppercase;
     margin-top: 6px;
+    display: block;
   }
 
   .duration-row {
     display: flex;
     justify-content: center;
-    gap: 10px;
-    margin-bottom: 28px;
+    gap: 8px;
+    margin-bottom: 18px;
+    width: 100%;
   }
-
   .btn-duration {
     font-family: 'Outfit', sans-serif;
-    font-size: 0.7rem;
+    font-size: 0.65rem;
     font-weight: 400;
-    letter-spacing: 0.22em;
+    letter-spacing: 0.2em;
     text-transform: uppercase;
-    padding: 9px 24px;
+    padding: 8px 20px;
     border: 1px solid var(--parchment);
     background: var(--ivory);
     color: var(--text-mid);
@@ -182,294 +207,209 @@
     border-radius: 1px;
     transition: all 0.2s;
   }
-  .btn-duration:hover,
-  .btn-duration.active {
+  .btn-duration:hover, .btn-duration.active {
     border-color: var(--gold);
     background: var(--gold-pale);
     color: var(--gold);
   }
-
   .controls-row {
     display: flex;
     justify-content: center;
-    gap: 12px;
+    gap: 8px;
+    width: 100%;
   }
-
   .btn-ctrl {
     font-family: 'Outfit', sans-serif;
-    font-size: 0.68rem;
+    font-size: 0.62rem;
     font-weight: 400;
-    letter-spacing: 0.28em;
+    letter-spacing: 0.24em;
     text-transform: uppercase;
-    padding: 11px 32px;
+    padding: 10px 20px;
     border: none;
     cursor: pointer;
     border-radius: 1px;
     transition: all 0.2s;
   }
-
   .btn-start {
-    background: var(--gold);
-    color: #fff;
+    background: var(--gold); color: #fff;
     box-shadow: 0 4px 16px rgba(184,151,46,0.35);
   }
   .btn-start:hover { background: var(--gold-light); transform: translateY(-1px); }
-  .btn-pause {
-    background: var(--cream);
-    color: var(--text-mid);
-    border: 1px solid var(--parchment);
-  }
+  .btn-pause { background: var(--cream); color: var(--text-mid); border: 1px solid var(--parchment); }
   .btn-pause:hover { background: var(--parchment); }
-  .btn-reset {
-    background: transparent;
-    color: var(--text-soft);
-    border: 1px solid var(--parchment);
-  }
+  .btn-reset { background: transparent; color: var(--text-soft); border: 1px solid var(--parchment); }
   .btn-reset:hover { color: var(--text-mid); border-color: var(--text-soft); }
-
-  /* Progress arc removed */
 
   /* ── TABLE ── */
   .table-controls {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 20px;
-    flex-wrap: wrap;
-    gap: 10px;
+    margin-bottom: 16px;
+    flex-wrap: wrap; gap: 10px;
   }
-
   .btn-add {
     font-family: 'Outfit', sans-serif;
-    font-size: 0.68rem;
+    font-size: 0.62rem;
     font-weight: 400;
-    letter-spacing: 0.24em;
+    letter-spacing: 0.22em;
     text-transform: uppercase;
-    padding: 10px 26px;
-    background: var(--gold);
-    color: #fff;
-    border: none;
-    cursor: pointer;
+    padding: 9px 22px;
+    background: var(--gold); color: #fff;
+    border: none; cursor: pointer;
     border-radius: 1px;
     transition: all 0.2s;
     box-shadow: 0 3px 12px rgba(184,151,46,0.28);
   }
   .btn-add:hover { background: var(--gold-light); transform: translateY(-1px); }
-
-  .table-wrap {
-    overflow-x: auto;
-    border: 1px solid var(--parchment);
+  .shortcut-hint {
+    font-size: 0.6rem;
+    color: var(--text-soft);
+    letter-spacing: 0.05em;
   }
-
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.82rem;
-  }
-
-  thead tr {
+  .shortcut-key {
+    display: inline-block;
     background: var(--cream);
+    border: 1px solid var(--parchment);
+    border-radius: 2px;
+    padding: 1px 5px;
+    font-size: 0.58rem;
+    color: var(--text-mid);
   }
 
+  .table-wrap { overflow-x: auto; border: 1px solid var(--parchment); }
+  table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+  thead tr { background: var(--cream); }
   th {
     font-family: 'Outfit', sans-serif;
-    font-weight: 400;
-    font-size: 0.6rem;
-    letter-spacing: 0.3em;
-    text-transform: uppercase;
+    font-weight: 400; font-size: 0.58rem;
+    letter-spacing: 0.28em; text-transform: uppercase;
     color: var(--text-soft);
-    padding: 13px 14px;
+    padding: 11px 12px;
     text-align: left;
     border-bottom: 1px solid var(--parchment);
     white-space: nowrap;
   }
-
   td {
-    padding: 10px 14px;
+    padding: 9px 12px;
     border-bottom: 1px solid var(--parchment);
     vertical-align: middle;
   }
-
   tbody tr:last-child td { border-bottom: none; }
   tbody tr:hover td { background: var(--gold-pale); }
 
   .cell-input {
     font-family: 'Outfit', sans-serif;
-    font-size: 0.82rem;
-    font-weight: 300;
+    font-size: 0.8rem; font-weight: 300;
     color: var(--text-dark);
-    border: none;
-    background: transparent;
-    outline: none;
-    width: 100%;
+    border: none; background: transparent;
+    outline: none; width: 100%;
     padding: 2px 0;
     border-bottom: 1px solid transparent;
     transition: border-color 0.2s;
   }
   .cell-input:focus { border-bottom-color: var(--gold-line); }
   input[type="date"].cell-input, input[type="time"].cell-input {
-    color: var(--text-mid);
-    cursor: pointer;
+    color: var(--text-mid); cursor: pointer;
   }
-
   .link-display a {
-    color: var(--gold);
-    text-decoration: none;
+    color: var(--gold); text-decoration: none;
     font-weight: 300;
     border-bottom: 1px solid var(--parchment);
     transition: border-color 0.2s;
-    font-size: 0.78rem;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: inline-block;
-    max-width: 130px;
+    font-size: 0.75rem;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    display: inline-block; max-width: 120px;
   }
   .link-display a:hover { border-color: var(--gold); }
-
+  .link-edit {
+    font-size: 0.68rem; margin-top: 3px;
+  }
   .btn-del {
-    background: none;
-    border: none;
-    color: var(--parchment);
-    cursor: pointer;
-    font-size: 1rem;
-    line-height: 1;
-    padding: 2px 6px;
-    transition: color 0.2s;
-    font-weight: 300;
+    background: none; border: none;
+    color: var(--parchment); cursor: pointer;
+    font-size: 1rem; line-height: 1;
+    padding: 2px 4px; transition: color 0.2s;
   }
   .btn-del:hover { color: #c0392b; }
 
   /* ── SETTINGS ── */
-  .settings-toggle {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    cursor: pointer;
-    margin-bottom: 0;
-    user-select: none;
-  }
-  .settings-toggle .toggle-icon {
-    font-size: 0.72rem;
+  .settings-toggle-row {
+    display: flex; align-items: center; gap: 10px;
+    cursor: pointer; user-select: none;
+    font-size: 0.58rem; font-weight: 500;
+    letter-spacing: 0.38em; text-transform: uppercase;
     color: var(--gold);
-    transition: transform 0.3s;
   }
-  .settings-toggle.open .toggle-icon { transform: rotate(180deg); }
-
-  .settings-body {
-    display: none;
-    margin-top: 24px;
-    padding-top: 24px;
-    border-top: 1px solid var(--parchment);
+  .settings-toggle-row::after {
+    content: ''; flex: 1; height: 1px;
+    background: linear-gradient(90deg, var(--parchment), transparent);
   }
+  .toggle-icon { transition: transform 0.3s; font-size: 0.7rem; }
+  .settings-body { display: none; margin-top: 20px; }
   .settings-body.open { display: block; }
-
-  .field-group {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 18px;
-    margin-bottom: 18px;
-  }
-  @media (max-width: 560px) { .field-group { grid-template-columns: 1fr; } }
-
-  .field {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
-
+  .field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 14px; }
   .field label {
-    font-size: 0.6rem;
-    font-weight: 400;
-    letter-spacing: 0.28em;
-    text-transform: uppercase;
+    font-size: 0.58rem; font-weight: 400;
+    letter-spacing: 0.26em; text-transform: uppercase;
     color: var(--text-soft);
   }
-
   .field input {
     font-family: 'Outfit', sans-serif;
-    font-size: 0.82rem;
-    font-weight: 300;
-    padding: 10px 12px;
+    font-size: 0.8rem; font-weight: 300;
+    padding: 9px 12px;
     border: 1px solid var(--parchment);
-    background: var(--ivory);
-    color: var(--text-dark);
-    outline: none;
-    border-radius: 1px;
+    background: var(--ivory); color: var(--text-dark);
+    outline: none; border-radius: 1px;
     transition: border-color 0.2s;
   }
   .field input:focus { border-color: var(--gold-line); }
-
-  .settings-footer {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    flex-wrap: wrap;
-  }
-
+  .settings-footer { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
   .btn-save-sheet {
     font-family: 'Outfit', sans-serif;
-    font-size: 0.68rem;
-    font-weight: 400;
-    letter-spacing: 0.24em;
-    text-transform: uppercase;
-    padding: 11px 28px;
-    background: var(--text-dark);
-    color: var(--gold-pale);
-    border: none;
-    cursor: pointer;
-    border-radius: 1px;
+    font-size: 0.62rem; font-weight: 400;
+    letter-spacing: 0.22em; text-transform: uppercase;
+    padding: 10px 24px;
+    background: var(--text-dark); color: var(--gold-pale);
+    border: none; cursor: pointer; border-radius: 1px;
     transition: all 0.2s;
   }
   .btn-save-sheet:hover { background: var(--text-mid); }
-
   .save-msg {
-    font-size: 0.72rem;
-    font-weight: 300;
-    letter-spacing: 0.08em;
+    font-size: 0.7rem; font-weight: 300;
+    letter-spacing: 0.06em;
     color: var(--text-soft);
-    opacity: 0;
-    transition: opacity 0.4s;
+    opacity: 0; transition: opacity 0.4s;
   }
   .save-msg.show { opacity: 1; }
   .save-msg.error { color: #c0392b; }
 
-  /* ── FOOTER ── */
-  footer {
-    text-align: center;
-    margin-top: 48px;
-    font-size: 0.6rem;
-    font-weight: 300;
-    letter-spacing: 0.3em;
-    text-transform: uppercase;
-    color: var(--parchment);
-  }
-
-  /* Notification toast */
+  /* ── TOAST ── */
   .toast {
-    position: fixed;
-    bottom: 32px;
-    left: 50%;
+    position: fixed; bottom: 28px; left: 50%;
     transform: translateX(-50%) translateY(20px);
-    background: var(--text-dark);
-    color: var(--gold-pale);
+    background: var(--text-dark); color: var(--gold-pale);
     font-family: 'Outfit', sans-serif;
-    font-size: 0.72rem;
-    font-weight: 300;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    padding: 14px 32px;
-    border-radius: 1px;
-    opacity: 0;
-    transition: all 0.4s;
-    pointer-events: none;
-    z-index: 999;
+    font-size: 0.68rem; font-weight: 300;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    padding: 12px 28px; border-radius: 1px;
+    opacity: 0; transition: all 0.4s;
+    pointer-events: none; z-index: 999;
     box-shadow: 0 8px 32px rgba(0,0,0,0.2);
     white-space: nowrap;
   }
-  .toast.show {
-    opacity: 1;
-    transform: translateX(-50%) translateY(0);
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 700px) {
+    .page-wrap {
+      grid-template-columns: 1fr;
+      grid-template-rows: auto auto auto;
+      padding: 12px 12px 40px;
+    }
+    .timer-card { grid-column: 1; grid-row: 1; position: static; }
+    .table-card { grid-column: 1; grid-row: 2; }
+    .settings-card { grid-column: 1; grid-row: 3; }
   }
 </style>
 </head>
@@ -477,23 +417,20 @@
 
 <div class="page-wrap">
 
-  <!-- HEADER -->
-  <header>
-    <div class="logo-mark">
-      <span class="logo-line"></span>
-      <span class="logo-diamond"></span>
-      <span class="logo-line right"></span>
-    </div>
-    <h1>Work Atelier</h1>
-    <p class="subtitle">Progress & Focus Manager</p>
-  </header>
+  <!-- TIMER CARD (left) -->
+  <div class="timer-card">
 
-  <!-- TIMER CARD -->
-  <div class="card">
+    <!-- Recent tasks preview -->
+    <div class="recent-tasks">
+      <div class="recent-label">Gần đây</div>
+      <div id="recentPreview"><div class="recent-empty">Chưa có công việc</div></div>
+    </div>
+
     <div class="section-label">Đồng hồ tập trung</div>
 
     <div class="timer-display">
-      <div class="timer-clock" id="timerClock" data-label="phút còn lại">10:00</div>
+      <span class="timer-clock" id="timerClock">10:00</span>
+      <span class="timer-sublabel">phút còn lại</span>
     </div>
 
     <div class="duration-row">
@@ -502,19 +439,24 @@
     </div>
 
     <div class="controls-row">
-      <button class="btn-ctrl btn-start" id="btnStart" onclick="startTimer()">Bắt đầu</button>
+      <button class="btn-ctrl btn-start" onclick="startTimer()">Bắt đầu</button>
       <button class="btn-ctrl btn-pause" onclick="pauseTimer()">Dừng</button>
       <button class="btn-ctrl btn-reset" onclick="resetTimer()">Đặt lại</button>
     </div>
   </div>
 
-  <!-- TASK TABLE CARD -->
-  <div class="card">
+  <!-- TABLE CARD (right) -->
+  <div class="table-card">
     <div class="section-label">Nhật ký công việc</div>
 
     <div class="table-controls">
-      <div style="font-size:0.75rem;font-weight:300;color:var(--text-soft);letter-spacing:0.05em;" id="rowCount">0 mục</div>
-      <button class="btn-add" onclick="addRow()">+ Thêm công việc</button>
+      <div>
+        <span class="shortcut-hint">Thêm nhanh: <span class="shortcut-key">Ctrl</span> + <span class="shortcut-key">D</span></span>
+      </div>
+      <div style="display:flex;align-items:center;gap:14px;">
+        <span id="rowCount" style="font-size:0.72rem;font-weight:300;color:var(--text-soft);">0 mục</span>
+        <button class="btn-add" onclick="addRow()">+ Thêm công việc</button>
+      </div>
     </div>
 
     <div class="table-wrap">
@@ -522,10 +464,10 @@
         <thead>
           <tr>
             <th>Ngày</th>
-            <th>Thời gian</th>
+            <th>Giờ</th>
             <th style="min-width:200px">Việc cần làm</th>
-            <th style="min-width:150px">Link</th>
-            <th style="width:40px"></th>
+            <th style="min-width:130px">Link</th>
+            <th style="width:36px"></th>
           </tr>
         </thead>
         <tbody id="taskBody"></tbody>
@@ -533,20 +475,19 @@
     </div>
   </div>
 
-  <!-- SETTINGS / GOOGLE SHEETS CARD -->
-  <div class="card">
-    <div class="section-label" style="cursor:pointer" onclick="toggleSettings()">
+  <!-- SETTINGS CARD (bottom full width) -->
+  <div class="settings-card">
+    <div class="settings-toggle-row" onclick="toggleSettings()">
       <span>Đồng bộ Google Sheets</span>
       <span class="toggle-icon" id="toggleIcon">▾</span>
-      <span style="flex:1;height:1px;background:linear-gradient(90deg,var(--parchment),transparent)"></span>
     </div>
 
     <div class="settings-body" id="settingsBody">
-      <div class="field-group" style="grid-template-columns:1fr;">
-        <div class="field">
-          <label>Apps Script URL</label>
-          <input type="text" id="scriptUrl" placeholder="https://script.google.com/macros/s/..." value="https://script.google.com/macros/s/AKfycbwQtgA2pzMPQ5YU_EKfC9fjmtP5XEiaGFPb9VVw4P8sG7Yr67CGJLblMr0e0lvuzFv3jg/exec">
-        </div>
+      <div class="field" style="margin-top:16px;">
+        <label>Apps Script URL</label>
+        <input type="text" id="scriptUrl"
+          placeholder="https://script.google.com/macros/s/..."
+          value="https://script.google.com/macros/s/AKfycbwQtgA2pzMPQ5YU_EKfC9fjmtP5XEiaGFPb9VVw4P8sG7Yr67CGJLblMr0e0lvuzFv3jg/exec">
       </div>
       <div class="settings-footer">
         <button class="btn-save-sheet" onclick="saveToSheet()">Lưu lên Google Sheets</button>
@@ -557,10 +498,7 @@
 
 </div>
 
-<!-- TOAST -->
 <div class="toast" id="toast"></div>
-
-<footer>Work Atelier · Designed for focused minds</footer>
 
 <script>
 // ─── TIMER ───────────────────────────────────────────────
@@ -568,8 +506,6 @@ let totalSeconds = 600;
 let remainingSeconds = 600;
 let timerInterval = null;
 let isRunning = false;
-
-const CIRCUMFERENCE = 2 * Math.PI * 80; // ≈ 502.65
 
 function setDuration(mins, btn) {
   if (isRunning) return;
@@ -622,69 +558,51 @@ function tick() {
 function updateClockDisplay() {
   const m = Math.floor(remainingSeconds / 60).toString().padStart(2, '0');
   const s = (remainingSeconds % 60).toString().padStart(2, '0');
-  document.getElementById('timerClock').textContent = `${m}:${s}`;
+  document.getElementById('timerClock').textContent = m + ':' + s;
 }
 
-function updateRing(fraction) {
-  const offset = CIRCUMFERENCE * (1 - fraction);
-  document.getElementById('ringProgress').style.strokeDashoffset = offset;
-  document.getElementById('ringProgress').style.strokeDasharray = CIRCUMFERENCE;
-  if (fraction <= 0.2) {
-    document.getElementById('ringProgress').style.stroke = '#c0392b';
-  } else {
-    document.getElementById('ringProgress').style.stroke = 'var(--gold-line)';
-  }
-}
-
-// Init clock
-updateClockDisplay();
-
-// ─── CHIME (Web Audio API) ────────────────────────────────
+// ─── CHIME ───────────────────────────────────────────────
 function playChime() {
   try {
     const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    const notes = [523.25, 659.25, 783.99, 1046.50]; // C5 E5 G5 C6
-    notes.forEach((freq, i) => {
+    [523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
-      osc.connect(gain);
-      gain.connect(ctx.destination);
+      osc.connect(gain); gain.connect(ctx.destination);
       osc.type = 'sine';
       osc.frequency.setValueAtTime(freq, ctx.currentTime);
-      const start = ctx.currentTime + i * 0.28;
-      const end = start + 1.1;
-      gain.gain.setValueAtTime(0, start);
-      gain.gain.linearRampToValueAtTime(0.22, start + 0.04);
-      gain.gain.exponentialRampToValueAtTime(0.001, end);
-      osc.start(start);
-      osc.stop(end);
+      const t = ctx.currentTime + i * 0.28;
+      gain.gain.setValueAtTime(0, t);
+      gain.gain.linearRampToValueAtTime(0.22, t + 0.04);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 1.1);
+      osc.start(t); osc.stop(t + 1.1);
     });
-  } catch(e) { console.warn('Audio not available', e); }
+  } catch(e) {}
 }
 
 // ─── TASK TABLE ───────────────────────────────────────────
 let rows = [];
 
-function todayStr() {
-  return new Date().toISOString().slice(0, 10);
-}
-function nowStr() {
-  const d = new Date();
-  return d.toTimeString().slice(0, 5);
-}
+function todayStr() { return new Date().toISOString().slice(0, 10); }
+function nowStr() { return new Date().toTimeString().slice(0, 5); }
 
 function addRow(data) {
   const id = Date.now() + Math.random();
   const row = data || { id, date: todayStr(), time: nowStr(), task: '', link: '' };
   if (!data) row.id = id;
-  rows.push(row);
+  // New rows go to the TOP
+  if (!data) {
+    rows.unshift(row);
+  } else {
+    rows.push(row);
+  }
   renderTable();
+  renderRecent();
   saveToBrowser();
-  // Autofocus last task input if this is a new (non-restore) row
   if (!data) {
     setTimeout(() => {
       const inputs = document.querySelectorAll('#taskBody tr td:nth-child(3) input');
-      if (inputs.length) inputs[inputs.length - 1].focus();
+      if (inputs.length) inputs[0].focus(); // first row = newest
     }, 30);
   }
 }
@@ -692,12 +610,13 @@ function addRow(data) {
 function deleteRow(id) {
   rows = rows.filter(r => r.id !== id);
   renderTable();
+  renderRecent();
   saveToBrowser();
 }
 
 function updateRow(id, field, value) {
   const r = rows.find(r => r.id === id);
-  if (r) { r[field] = value; saveToBrowser(); }
+  if (r) { r[field] = value; renderRecent(); saveToBrowser(); }
 }
 
 function renderTable() {
@@ -705,30 +624,37 @@ function renderTable() {
   tbody.innerHTML = '';
   rows.forEach(row => {
     const tr = document.createElement('tr');
-    // Link cell: show input OR link
     const linkCell = row.link
-      ? `<div class="link-display">
-           <a href="${escHtml(row.link)}" target="_blank" rel="noopener">${shortUrl(row.link)}</a>
-           <input type="text" class="cell-input" value="${escHtml(row.link)}" style="font-size:0.7rem;margin-top:3px;"
-             onchange="updateRow(${JSON.stringify(row.id)}, 'link', this.value); renderTable();"
-             onfocus="this.select()">
-         </div>`
-      : `<input type="text" class="cell-input" placeholder="https://..." value="${escHtml(row.link)}"
-           onchange="updateRow(${JSON.stringify(row.id)}, 'link', this.value); renderTable();">`;
+      ? '<div class="link-display"><a href="' + escHtml(row.link) + '" target="_blank" rel="noopener">' + shortUrl(row.link) + '</a>' +
+        '<br><input type="text" class="cell-input link-edit" value="' + escHtml(row.link) + '"' +
+        ' onchange="updateRow(' + JSON.stringify(row.id) + ', \'link\', this.value); renderTable();" onfocus="this.select()"></div>'
+      : '<input type="text" class="cell-input" placeholder="https://..." value="' + escHtml(row.link) + '"' +
+        ' onchange="updateRow(' + JSON.stringify(row.id) + ', \'link\', this.value); renderTable();">';
 
-    tr.innerHTML = `
-      <td><input type="date" class="cell-input" value="${escHtml(row.date)}"
-        onchange="updateRow(${JSON.stringify(row.id)}, 'date', this.value)"></td>
-      <td><input type="time" class="cell-input" value="${escHtml(row.time)}"
-        onchange="updateRow(${JSON.stringify(row.id)}, 'time', this.value)"></td>
-      <td><input type="text" class="cell-input" placeholder="Mô tả công việc..." value="${escHtml(row.task)}"
-        onchange="updateRow(${JSON.stringify(row.id)}, 'task', this.value)"></td>
-      <td>${linkCell}</td>
-      <td><button class="btn-del" onclick="deleteRow(${JSON.stringify(row.id)})" title="Xóa">×</button></td>
-    `;
+    tr.innerHTML =
+      '<td><input type="date" class="cell-input" value="' + escHtml(row.date) + '" onchange="updateRow(' + JSON.stringify(row.id) + ', \'date\', this.value)"></td>' +
+      '<td><input type="time" class="cell-input" value="' + escHtml(row.time) + '" onchange="updateRow(' + JSON.stringify(row.id) + ', \'time\', this.value)"></td>' +
+      '<td><input type="text" class="cell-input" placeholder="Mô tả công việc..." value="' + escHtml(row.task) + '" onchange="updateRow(' + JSON.stringify(row.id) + ', \'task\', this.value)"></td>' +
+      '<td>' + linkCell + '</td>' +
+      '<td><button class="btn-del" onclick="deleteRow(' + JSON.stringify(row.id) + ')" title="Xóa">×</button></td>';
     tbody.appendChild(tr);
   });
   document.getElementById('rowCount').textContent = rows.length + ' mục';
+}
+
+function renderRecent() {
+  const el = document.getElementById('recentPreview');
+  const recent = rows.filter(r => r.task).slice(0, 2);
+  if (!recent.length) {
+    el.innerHTML = '<div class="recent-empty">Chưa có công việc</div>';
+    return;
+  }
+  el.innerHTML = recent.map((r, i) =>
+    '<div class="recent-item">' +
+    '<div class="recent-task-text">' + escHtml(r.task || '—') + '</div>' +
+    '<div class="recent-task-meta">' + r.date + ' · ' + r.time + '</div>' +
+    '</div>'
+  ).join('');
 }
 
 function escHtml(s) {
@@ -744,15 +670,13 @@ function saveToBrowser() {
 }
 function loadFromBrowser() {
   try {
-    const saved = JSON.parse(localStorage.getItem('wa_rows') || '[]');
-    rows = saved;
+    rows = JSON.parse(localStorage.getItem('wa_rows') || '[]');
     renderTable();
+    renderRecent();
   } catch {}
-  // Load script URL
   const saved_url = localStorage.getItem('wa_scriptUrl');
   if (saved_url) document.getElementById('scriptUrl').value = saved_url;
 }
-
 document.getElementById('scriptUrl').addEventListener('input', function() {
   localStorage.setItem('wa_scriptUrl', this.value);
 });
@@ -765,34 +689,28 @@ function toggleSettings() {
   icon.style.transform = body.classList.contains('open') ? 'rotate(180deg)' : '';
 }
 
-// ─── GOOGLE SHEETS SYNC (Apps Script) ────────────────────
+// ─── GOOGLE SHEETS via Apps Script ───────────────────────
 async function saveToSheet() {
   const scriptUrl = document.getElementById('scriptUrl').value.trim();
+  if (!scriptUrl) { showSaveMsg('Vui lòng nhập Apps Script URL.', true); return; }
+  if (!rows.length) { showSaveMsg('Không có dữ liệu để lưu.', true); return; }
 
-  if (!scriptUrl) {
-    showSaveMsg('Vui lòng nhập Apps Script URL.', true);
-    return;
-  }
-  if (rows.length === 0) {
-    showSaveMsg('Không có dữ liệu để lưu.', true);
-    return;
-  }
+  showSaveMsg('Đang lưu…', false);
 
-  const payload = { rows: rows.map(r => [r.date, r.time, r.task, r.link]) };
+  // Apps Script doPost with no-cors — use form-encoded to avoid preflight
+  const formData = new FormData();
+  formData.append('data', JSON.stringify(rows.map(r => [r.date, r.time, r.task, r.link])));
 
   try {
-    showSaveMsg('Đang lưu…', false);
-    const res = await fetch(scriptUrl, {
+    await fetch(scriptUrl, {
       method: 'POST',
       mode: 'no-cors',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
+      body: formData
     });
-    // no-cors returns opaque response — assume success if no error thrown
-    showSaveMsg(`✓ Đã gửi ${rows.length} dòng lên Google Sheets!`, false);
-    showToast('✓ Dữ liệu đã được lưu lên Google Sheets');
+    showSaveMsg('✓ Đã gửi ' + rows.length + ' dòng lên Google Sheets!', false);
+    showToast('✓ Đã lưu lên Google Sheets');
   } catch(e) {
-    showSaveMsg('Lỗi kết nối: ' + e.message, true);
+    showSaveMsg('Lỗi: ' + e.message, true);
   }
 }
 
@@ -800,7 +718,7 @@ function showSaveMsg(msg, isError) {
   const el = document.getElementById('saveMsg');
   el.textContent = msg;
   el.className = 'save-msg show' + (isError ? ' error' : '');
-  if (!isError) setTimeout(() => el.classList.remove('show'), 4000);
+  if (!isError) setTimeout(() => el.classList.remove('show'), 5000);
 }
 
 // ─── TOAST ───────────────────────────────────────────────
@@ -808,10 +726,10 @@ function showToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg;
   t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 3500);
+  setTimeout(() => t.classList.remove('show'), 3000);
 }
 
-// ─── KEYBOARD SHORTCUTS ──────────────────────────────────
+// ─── KEYBOARD SHORTCUTS ───────────────────────────────────
 document.addEventListener('keydown', function(e) {
   if ((e.ctrlKey || e.metaKey) && e.key === 'd') {
     e.preventDefault();
@@ -820,8 +738,9 @@ document.addEventListener('keydown', function(e) {
 });
 
 // ─── INIT ─────────────────────────────────────────────────
+updateClockDisplay();
 loadFromBrowser();
-if (rows.length === 0) addRow(); // start with 1 empty row
+if (rows.length === 0) addRow();
 </script>
 </body>
 </html>
