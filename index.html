@@ -5,683 +5,178 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Work Atelier — Progress Manager</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --ivory: #f9f6f0;
-    --cream: #f0ebe0;
-    --parchment: #e8e0d0;
-    --gold: #b8972e;
-    --gold-light: #d4af57;
-    --gold-pale: #f5edda;
-    --gold-line: #c9a84c;
-    --text-dark: #1a1610;
-    --text-mid: #4a4238;
-    --text-soft: #8a7d6e;
-    --shadow: rgba(90,70,30,0.12);
-  }
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --ivory: #f9f6f0;
+  --cream: #f0ebe0;
+  --parchment: #e8e0d0;
+  --gold: #b8972e;
+  --gold-light: #d4af57;
+  --gold-pale: #f5edda;
+  --gold-line: #c9a84c;
+  --text-dark: #1a1610;
+  --text-mid: #4a4238;
+  --text-soft: #8a7d6e;
+  --shadow: rgba(90,70,30,0.12);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Outfit',sans-serif;background:var(--ivory);color:var(--text-dark);min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(ellipse at 20% 20%,rgba(212,175,87,0.06) 0%,transparent 60%),radial-gradient(ellipse at 80% 80%,rgba(184,151,46,0.05) 0%,transparent 50%);pointer-events:none;z-index:0;}
 
-  body {
-    font-family: 'Outfit', sans-serif;
-    background: var(--ivory);
-    color: var(--text-dark);
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
-  body::before {
-    content: '';
-    position: fixed; inset: 0;
-    background-image:
-      radial-gradient(ellipse at 20% 20%, rgba(212,175,87,0.06) 0%, transparent 60%),
-      radial-gradient(ellipse at 80% 80%, rgba(184,151,46,0.05) 0%, transparent 50%);
-    pointer-events: none; z-index: 0;
-  }
+/* LAYOUT */
+.page-wrap{position:relative;z-index:1;max-width:980px;margin:0 auto;padding:20px 20px 60px;display:grid;grid-template-columns:320px 1fr;grid-template-rows:auto auto auto auto;gap:20px;}
 
-  /* ── LAYOUT ── */
-  .page-wrap {
-    position: relative; z-index: 1;
-    max-width: 960px; margin: 0 auto;
-    padding: 20px 20px 60px;
-    display: grid;
-    grid-template-columns: 340px 1fr;
-    grid-template-rows: auto 1fr auto;
-    gap: 20px;
-    min-height: 100vh;
-  }
+/* CARDS */
+.timer-card{grid-column:1;grid-row:1/3;background:#fff;border:1px solid var(--parchment);border-radius:2px;box-shadow:0 2px 24px var(--shadow);padding:28px 24px;display:flex;flex-direction:column;align-items:center;position:sticky;top:20px;align-self:start;}
+.table-card{grid-column:2;grid-row:1/3;background:#fff;border:1px solid var(--parchment);border-radius:2px;box-shadow:0 2px 24px var(--shadow);padding:28px;}
+.tab-nav{grid-column:1/3;grid-row:3;display:flex;gap:4px;align-items:flex-end;}
+.tab-content{grid-column:1/3;grid-row:4;background:#fff;border:1px solid var(--parchment);border-radius:0 2px 2px 2px;box-shadow:0 2px 24px var(--shadow);}
 
-  /* Timer card — left column, rows 1+2 */
-  .timer-card {
-    grid-column: 1;
-    grid-row: 1 / 3;
-    background: #fff;
-    border: 1px solid var(--parchment);
-    border-radius: 2px;
-    box-shadow: 0 2px 24px var(--shadow);
-    padding: 32px 28px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    position: sticky;
-    top: 20px;
-    align-self: start;
-  }
+/* SECTION LABEL */
+.section-label{font-size:0.58rem;font-weight:500;letter-spacing:0.38em;text-transform:uppercase;color:var(--gold);margin-bottom:20px;display:flex;align-items:center;gap:10px;width:100%;}
+.section-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--parchment),transparent);}
 
-  /* Table card — right column, row 1 */
-  .table-card {
-    grid-column: 2;
-    grid-row: 1 / 3;
-    background: #fff;
-    border: 1px solid var(--parchment);
-    border-radius: 2px;
-    box-shadow: 0 2px 24px var(--shadow);
-    padding: 28px 28px;
-  }
+/* RECENT TASKS */
+.recent-tasks{width:100%;margin-bottom:22px;}
+.recent-label{font-size:0.55rem;font-weight:500;letter-spacing:0.32em;text-transform:uppercase;color:var(--gold);margin-bottom:8px;display:flex;align-items:center;gap:8px;}
+.recent-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--parchment),transparent);}
+.recent-item{padding:7px 10px;border-left:2px solid var(--parchment);margin-bottom:5px;background:var(--ivory);border-radius:0 2px 2px 0;}
+.recent-item:first-child{border-left-color:var(--gold-line);}
+.recent-task-text{font-size:0.76rem;font-weight:400;color:var(--text-dark);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.recent-task-meta{font-size:0.6rem;color:var(--text-soft);margin-top:2px;}
+.recent-empty{font-size:0.7rem;color:var(--text-soft);font-style:italic;text-align:center;padding:6px 0;}
 
-  /* Settings card — full width, row 3 */
-  .settings-card {
-    grid-column: 1 / 3;
-    grid-row: 3;
-    background: #fff;
-    border: 1px solid var(--parchment);
-    border-radius: 2px;
-    box-shadow: 0 2px 24px var(--shadow);
-    padding: 22px 28px;
-  }
+/* TIMER */
+.timer-display{text-align:center;width:100%;margin-bottom:18px;}
+.timer-clock{font-family:'Outfit',sans-serif;font-size:clamp(3.5rem,9vw,5.5rem);font-weight:300;font-variant-numeric:tabular-nums;letter-spacing:0.04em;color:var(--text-dark);line-height:1;transition:color 0.4s;display:block;}
+.timer-clock.running{color:var(--gold);}
+.timer-clock.ending{color:#c0392b;}
+.timer-sublabel{font-size:0.58rem;font-weight:400;letter-spacing:0.36em;color:var(--text-soft);text-transform:uppercase;margin-top:6px;display:block;}
+.duration-row{display:flex;justify-content:center;gap:8px;margin-bottom:16px;width:100%;}
+.btn-duration{font-family:'Outfit',sans-serif;font-size:0.62rem;font-weight:400;letter-spacing:0.2em;text-transform:uppercase;padding:7px 18px;border:1px solid var(--parchment);background:var(--ivory);color:var(--text-mid);cursor:pointer;border-radius:1px;transition:all 0.2s;}
+.btn-duration:hover,.btn-duration.active{border-color:var(--gold);background:var(--gold-pale);color:var(--gold);}
+.controls-row{display:flex;justify-content:center;gap:8px;width:100%;}
+.btn-ctrl{font-family:'Outfit',sans-serif;font-size:0.6rem;font-weight:400;letter-spacing:0.22em;text-transform:uppercase;padding:9px 18px;border:none;cursor:pointer;border-radius:1px;transition:all 0.2s;}
+.btn-start{background:var(--gold);color:#fff;box-shadow:0 4px 16px rgba(184,151,46,0.35);}
+.btn-start:hover{background:var(--gold-light);transform:translateY(-1px);}
+.btn-pause{background:var(--cream);color:var(--text-mid);border:1px solid var(--parchment);}
+.btn-pause:hover{background:var(--parchment);}
+.btn-reset{background:transparent;color:var(--text-soft);border:1px solid var(--parchment);}
+.btn-reset:hover{color:var(--text-mid);border-color:var(--text-soft);}
 
-  .section-label {
-    font-size: 0.58rem;
-    font-weight: 500;
-    letter-spacing: 0.38em;
-    text-transform: uppercase;
-    color: var(--gold);
-    margin-bottom: 22px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    width: 100%;
-  }
-  .section-label::after {
-    content: '';
-    flex: 1; height: 1px;
-    background: linear-gradient(90deg, var(--parchment), transparent);
-  }
+/* TABLE */
+.table-controls{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;}
+.filter-select{font-family:'Outfit',sans-serif;font-size:0.62rem;letter-spacing:0.14em;color:var(--text-mid);background:var(--ivory);border:1px solid var(--parchment);padding:6px 10px;border-radius:1px;cursor:pointer;outline:none;}
+.filter-select:focus{border-color:var(--gold-line);}
+.btn-add{font-family:'Outfit',sans-serif;font-size:0.62rem;font-weight:400;letter-spacing:0.2em;text-transform:uppercase;padding:8px 20px;background:var(--gold);color:#fff;border:none;cursor:pointer;border-radius:1px;transition:all 0.2s;box-shadow:0 3px 12px rgba(184,151,46,0.28);}
+.btn-add:hover{background:var(--gold-light);transform:translateY(-1px);}
+.btn-clear-all{font-family:'Outfit',sans-serif;font-size:0.62rem;font-weight:400;letter-spacing:0.16em;text-transform:uppercase;padding:7px 14px;background:transparent;color:#b04040;border:1px solid #e8c0c0;cursor:pointer;border-radius:1px;transition:all 0.2s;}
+.btn-clear-all:hover{background:#fff0f0;border-color:#c04040;}
+.shortcut-hint{font-size:0.6rem;color:var(--text-soft);letter-spacing:0.05em;}
+.shortcut-key{display:inline-block;background:var(--cream);border:1px solid var(--parchment);border-radius:2px;padding:1px 5px;font-size:0.58rem;color:var(--text-mid);}
+.table-wrap{overflow-x:auto;border:1px solid var(--parchment);}
+table{width:100%;border-collapse:collapse;font-size:0.8rem;}
+thead tr{background:var(--cream);}
+th{font-family:'Outfit',sans-serif;font-weight:400;font-size:0.58rem;letter-spacing:0.26em;text-transform:uppercase;color:var(--text-soft);padding:10px 12px;text-align:left;border-bottom:1px solid var(--parchment);white-space:nowrap;}
+td{padding:8px 12px;border-bottom:1px solid var(--parchment);vertical-align:middle;}
+tbody tr:last-child td{border-bottom:none;}
+tbody tr:hover td{background:var(--gold-pale);}
+.cell-input{font-family:'Outfit',sans-serif;font-size:0.78rem;font-weight:300;color:var(--text-dark);border:none;background:transparent;outline:none;width:100%;padding:2px 0;border-bottom:1px solid transparent;transition:border-color 0.2s;}
+.cell-input:focus{border-bottom-color:var(--gold-line);}
+input[type="date"].cell-input,input[type="time"].cell-input{color:var(--text-mid);cursor:pointer;}
+.link-display a{color:var(--gold);text-decoration:none;font-weight:300;border-bottom:1px solid var(--parchment);font-size:0.74rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:inline-block;max-width:120px;}
+.link-display a:hover{border-color:var(--gold);}
+.btn-del{background:none;border:none;color:var(--parchment);cursor:pointer;font-size:1rem;line-height:1;padding:2px 4px;transition:color 0.2s;}
+.btn-del:hover{color:#c0392b;}
+.hidden-rows-note{text-align:center;padding:10px;font-size:0.7rem;color:var(--text-soft);font-style:italic;}
 
-  /* ── RECENT TASKS (above timer) ── */
-  .recent-tasks {
-    width: 100%;
-    margin-bottom: 24px;
-  }
-  .recent-label {
-    font-size: 0.55rem;
-    font-weight: 500;
-    letter-spacing: 0.32em;
-    text-transform: uppercase;
-    color: var(--gold);
-    margin-bottom: 10px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .recent-label::after {
-    content: ''; flex: 1; height: 1px;
-    background: linear-gradient(90deg, var(--parchment), transparent);
-  }
-  .recent-item {
-    padding: 8px 10px;
-    border-left: 2px solid var(--parchment);
-    margin-bottom: 6px;
-    background: var(--ivory);
-    border-radius: 0 2px 2px 0;
-    transition: border-color 0.2s;
-  }
-  .recent-item:first-child { border-left-color: var(--gold-line); }
-  .recent-task-text {
-    font-size: 0.78rem;
-    font-weight: 400;
-    color: var(--text-dark);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  .recent-task-meta {
-    font-size: 0.62rem;
-    color: var(--text-soft);
-    margin-top: 2px;
-  }
-  .recent-empty {
-    font-size: 0.72rem;
-    color: var(--text-soft);
-    font-style: italic;
-    text-align: center;
-    padding: 8px 0;
-  }
+/* TABS */
+.tab-btn{font-family:'Outfit',sans-serif;font-size:0.6rem;font-weight:400;letter-spacing:0.24em;text-transform:uppercase;padding:10px 22px;border:1px solid var(--parchment);border-bottom:none;background:var(--cream);color:var(--text-soft);cursor:pointer;transition:all 0.2s;border-radius:2px 2px 0 0;}
+.tab-btn:hover{color:var(--text-mid);background:var(--ivory);}
+.tab-btn.active{color:var(--gold);background:#fff;font-weight:500;}
 
-  /* ── TIMER ── */
-  .timer-display {
-    text-align: center;
-    width: 100%;
-    margin-bottom: 20px;
-  }
-  .timer-clock {
-    font-family: 'Outfit', sans-serif;
-    font-size: clamp(4rem, 10vw, 6rem);
-    font-weight: 300;
-    font-variant-numeric: tabular-nums;
-    letter-spacing: 0.04em;
-    color: var(--text-dark);
-    line-height: 1;
-    transition: color 0.4s;
-    display: block;
-  }
-  .timer-clock.running { color: var(--gold); }
-  .timer-clock.ending { color: #c0392b; }
-  .timer-sublabel {
-    font-size: 0.58rem;
-    font-weight: 400;
-    letter-spacing: 0.36em;
-    color: var(--text-soft);
-    text-transform: uppercase;
-    margin-top: 6px;
-    display: block;
-  }
+/* TAB PANELS */
+#panel-sync{display:none;padding:28px;}
+#panel-guide{display:none;padding:36px 40px;}
 
-  .duration-row {
-    display: flex;
-    justify-content: center;
-    gap: 8px;
-    margin-bottom: 18px;
-    width: 100%;
-  }
-  .btn-duration {
-    font-family: 'Outfit', sans-serif;
-    font-size: 0.65rem;
-    font-weight: 400;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    padding: 8px 20px;
-    border: 1px solid var(--parchment);
-    background: var(--ivory);
-    color: var(--text-mid);
-    cursor: pointer;
-    border-radius: 1px;
-    transition: all 0.2s;
-  }
-  .btn-duration:hover, .btn-duration.active {
-    border-color: var(--gold);
-    background: var(--gold-pale);
-    color: var(--gold);
-  }
-  .controls-row {
-    display: flex;
-    justify-content: center;
-    gap: 8px;
-    width: 100%;
-  }
-  .btn-ctrl {
-    font-family: 'Outfit', sans-serif;
-    font-size: 0.62rem;
-    font-weight: 400;
-    letter-spacing: 0.24em;
-    text-transform: uppercase;
-    padding: 10px 20px;
-    border: none;
-    cursor: pointer;
-    border-radius: 1px;
-    transition: all 0.2s;
-  }
-  .btn-start {
-    background: var(--gold); color: #fff;
-    box-shadow: 0 4px 16px rgba(184,151,46,0.35);
-  }
-  .btn-start:hover { background: var(--gold-light); transform: translateY(-1px); }
-  .btn-pause { background: var(--cream); color: var(--text-mid); border: 1px solid var(--parchment); }
-  .btn-pause:hover { background: var(--parchment); }
-  .btn-reset { background: transparent; color: var(--text-soft); border: 1px solid var(--parchment); }
-  .btn-reset:hover { color: var(--text-mid); border-color: var(--text-soft); }
+/* SYNC PANEL */
+.field{display:flex;flex-direction:column;gap:5px;margin-bottom:14px;}
+.field label{font-size:0.58rem;font-weight:400;letter-spacing:0.26em;text-transform:uppercase;color:var(--text-soft);}
+.field input{font-family:'Outfit',sans-serif;font-size:0.8rem;font-weight:300;padding:9px 12px;border:1px solid var(--parchment);background:var(--ivory);color:var(--text-dark);outline:none;border-radius:1px;transition:border-color 0.2s;}
+.field input:focus{border-color:var(--gold-line);}
+.settings-footer{display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+.btn-save-sheet{font-family:'Outfit',sans-serif;font-size:0.62rem;font-weight:400;letter-spacing:0.22em;text-transform:uppercase;padding:10px 24px;background:var(--text-dark);color:var(--gold-pale);border:none;cursor:pointer;border-radius:1px;transition:all 0.2s;}
+.btn-save-sheet:hover{background:var(--text-mid);}
+.save-msg{font-size:0.7rem;font-weight:300;letter-spacing:0.06em;color:var(--text-soft);opacity:0;transition:opacity 0.4s;}
+.save-msg.show{opacity:1;}
+.save-msg.error{color:#c0392b;}
 
-  /* ── TABLE ── */
-  .table-controls {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 16px;
-    flex-wrap: wrap; gap: 10px;
-  }
-  .btn-add {
-    font-family: 'Outfit', sans-serif;
-    font-size: 0.62rem;
-    font-weight: 400;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    padding: 9px 22px;
-    background: var(--gold); color: #fff;
-    border: none; cursor: pointer;
-    border-radius: 1px;
-    transition: all 0.2s;
-    box-shadow: 0 3px 12px rgba(184,151,46,0.28);
-  }
-  .btn-add:hover { background: var(--gold-light); transform: translateY(-1px); }
-  .shortcut-hint {
-    font-size: 0.6rem;
-    color: var(--text-soft);
-    letter-spacing: 0.05em;
-  }
-  .shortcut-key {
-    display: inline-block;
-    background: var(--cream);
-    border: 1px solid var(--parchment);
-    border-radius: 2px;
-    padding: 1px 5px;
-    font-size: 0.58rem;
-    color: var(--text-mid);
-  }
+/* GUIDE PANEL */
+.guide-step{display:flex;gap:18px;margin-bottom:28px;}
+.step-num{flex-shrink:0;width:30px;height:30px;background:var(--gold-pale);border:1px solid var(--gold-line);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:500;color:var(--gold);}
+.step-body{flex:1;}
+.step-title{font-size:0.86rem;font-weight:500;color:var(--text-dark);margin-bottom:5px;}
+.step-desc{font-size:0.76rem;font-weight:300;color:var(--text-mid);line-height:1.7;margin-bottom:8px;}
+.step-desc b{font-weight:500;color:var(--text-dark);}
+.guide-divider{height:1px;background:linear-gradient(90deg,var(--parchment),transparent);margin:4px 0 28px;}
+.guide-tip{background:var(--gold-pale);border-left:3px solid var(--gold-line);padding:10px 14px;border-radius:0 2px 2px 0;font-size:0.73rem;font-weight:300;color:var(--text-mid);line-height:1.6;margin-top:8px;}
+.guide-tip b{font-weight:500;color:var(--gold);}
+.code-block{background:#1a1610;color:#f0ebe0;font-family:'Courier New',monospace;font-size:0.72rem;line-height:1.7;padding:16px 20px;border-radius:2px;overflow-x:auto;position:relative;margin-top:8px;}
+.code-block .kw{color:#c9a84c;}
+.code-block .str{color:#a8d8a8;}
+.code-block .cm{color:#6a7d6a;font-style:italic;}
+.code-block .fn{color:#d4af57;}
+.btn-copy{position:absolute;top:10px;right:10px;font-family:'Outfit',sans-serif;font-size:0.58rem;letter-spacing:0.18em;text-transform:uppercase;padding:5px 12px;background:rgba(201,168,76,0.15);color:var(--gold-line);border:1px solid rgba(201,168,76,0.3);border-radius:1px;cursor:pointer;transition:all 0.2s;}
+.btn-copy:hover{background:rgba(201,168,76,0.3);}
+.btn-copy.copied{color:#a8d8a8;border-color:#a8d8a8;}
 
-  .table-wrap { overflow-x: auto; border: 1px solid var(--parchment); }
-  table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
-  thead tr { background: var(--cream); }
-  th {
-    font-family: 'Outfit', sans-serif;
-    font-weight: 400; font-size: 0.58rem;
-    letter-spacing: 0.28em; text-transform: uppercase;
-    color: var(--text-soft);
-    padding: 11px 12px;
-    text-align: left;
-    border-bottom: 1px solid var(--parchment);
-    white-space: nowrap;
-  }
-  td {
-    padding: 9px 12px;
-    border-bottom: 1px solid var(--parchment);
-    vertical-align: middle;
-  }
-  tbody tr:last-child td { border-bottom: none; }
-  tbody tr:hover td { background: var(--gold-pale); }
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(26,22,16,0.45);z-index:1000;display:none;align-items:center;justify-content:center;}
+.modal-overlay.show{display:flex;}
+.modal-box{background:#fff;border:1px solid var(--parchment);border-radius:2px;box-shadow:0 8px 40px rgba(0,0,0,0.18);padding:36px 40px;max-width:380px;width:90%;text-align:center;}
+.modal-title{font-family:'DM Serif Display',serif;font-size:1.2rem;font-weight:400;color:var(--text-dark);margin-bottom:10px;}
+.modal-desc{font-size:0.78rem;font-weight:300;color:var(--text-soft);margin-bottom:28px;line-height:1.6;}
+.modal-actions{display:flex;gap:12px;justify-content:center;}
+.modal-cancel{font-family:'Outfit',sans-serif;font-size:0.65rem;letter-spacing:0.2em;text-transform:uppercase;padding:10px 24px;background:var(--cream);color:var(--text-mid);border:1px solid var(--parchment);cursor:pointer;border-radius:1px;transition:all 0.2s;}
+.modal-cancel:hover{background:var(--parchment);}
+.modal-confirm{font-family:'Outfit',sans-serif;font-size:0.65rem;letter-spacing:0.2em;text-transform:uppercase;padding:10px 24px;background:#c04040;color:#fff;border:none;cursor:pointer;border-radius:1px;transition:all 0.2s;}
+.modal-confirm:hover{background:#a03030;}
 
-  .cell-input {
-    font-family: 'Outfit', sans-serif;
-    font-size: 0.8rem; font-weight: 300;
-    color: var(--text-dark);
-    border: none; background: transparent;
-    outline: none; width: 100%;
-    padding: 2px 0;
-    border-bottom: 1px solid transparent;
-    transition: border-color 0.2s;
-  }
-  .cell-input:focus { border-bottom-color: var(--gold-line); }
-  input[type="date"].cell-input, input[type="time"].cell-input {
-    color: var(--text-mid); cursor: pointer;
-  }
-  .link-display a {
-    color: var(--gold); text-decoration: none;
-    font-weight: 300;
-    border-bottom: 1px solid var(--parchment);
-    transition: border-color 0.2s;
-    font-size: 0.75rem;
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    display: inline-block; max-width: 120px;
-  }
-  .link-display a:hover { border-color: var(--gold); }
-  .link-edit {
-    font-size: 0.68rem; margin-top: 3px;
-  }
-  .btn-del {
-    background: none; border: none;
-    color: var(--parchment); cursor: pointer;
-    font-size: 1rem; line-height: 1;
-    padding: 2px 4px; transition: color 0.2s;
-  }
-  .btn-del:hover { color: #c0392b; }
+/* TOAST */
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--text-dark);color:var(--gold-pale);font-family:'Outfit',sans-serif;font-size:0.68rem;font-weight:300;letter-spacing:0.18em;text-transform:uppercase;padding:12px 28px;border-radius:1px;opacity:0;transition:all 0.4s;pointer-events:none;z-index:999;box-shadow:0 8px 32px rgba(0,0,0,0.2);white-space:nowrap;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 
-  /* ── SETTINGS ── */
-  .settings-toggle-row {
-    display: flex; align-items: center; gap: 10px;
-    cursor: pointer; user-select: none;
-    font-size: 0.58rem; font-weight: 500;
-    letter-spacing: 0.38em; text-transform: uppercase;
-    color: var(--gold);
-  }
-  .settings-toggle-row::after {
-    content: ''; flex: 1; height: 1px;
-    background: linear-gradient(90deg, var(--parchment), transparent);
-  }
-  .toggle-icon { transition: transform 0.3s; font-size: 0.7rem; }
-  .settings-body { display: none; margin-top: 20px; }
-  .settings-body.open { display: block; }
-  .field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 14px; }
-  .field label {
-    font-size: 0.58rem; font-weight: 400;
-    letter-spacing: 0.26em; text-transform: uppercase;
-    color: var(--text-soft);
-  }
-  .field input {
-    font-family: 'Outfit', sans-serif;
-    font-size: 0.8rem; font-weight: 300;
-    padding: 9px 12px;
-    border: 1px solid var(--parchment);
-    background: var(--ivory); color: var(--text-dark);
-    outline: none; border-radius: 1px;
-    transition: border-color 0.2s;
-  }
-  .field input:focus { border-color: var(--gold-line); }
-  .settings-footer { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
-  .btn-save-sheet {
-    font-family: 'Outfit', sans-serif;
-    font-size: 0.62rem; font-weight: 400;
-    letter-spacing: 0.22em; text-transform: uppercase;
-    padding: 10px 24px;
-    background: var(--text-dark); color: var(--gold-pale);
-    border: none; cursor: pointer; border-radius: 1px;
-    transition: all 0.2s;
-  }
-  .btn-save-sheet:hover { background: var(--text-mid); }
-  .save-msg {
-    font-size: 0.7rem; font-weight: 300;
-    letter-spacing: 0.06em;
-    color: var(--text-soft);
-    opacity: 0; transition: opacity 0.4s;
-  }
-  .save-msg.show { opacity: 1; }
-  .save-msg.error { color: #c0392b; }
-
-  /* ── TOAST ── */
-  .toast {
-    position: fixed; bottom: 28px; left: 50%;
-    transform: translateX(-50%) translateY(20px);
-    background: var(--text-dark); color: var(--gold-pale);
-    font-family: 'Outfit', sans-serif;
-    font-size: 0.68rem; font-weight: 300;
-    letter-spacing: 0.18em; text-transform: uppercase;
-    padding: 12px 28px; border-radius: 1px;
-    opacity: 0; transition: all 0.4s;
-    pointer-events: none; z-index: 999;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
-    white-space: nowrap;
-  }
-  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-
-  /* ── RESPONSIVE ── */
-  @media (max-width: 700px) {
-    .page-wrap {
-      grid-template-columns: 1fr;
-      grid-template-rows: auto auto auto;
-      padding: 12px 12px 40px;
-    }
-    .timer-card { grid-column: 1; grid-row: 1; position: static; }
-    .table-card { grid-column: 1; grid-row: 2; }
-    .settings-card { grid-column: 1; grid-row: 3; }
-  }
-
-  /* ── TABS ── */
-  .tab-nav {
-    grid-column: 1 / 3;
-    grid-row: 3;
-    display: flex;
-    gap: 0;
-    border-bottom: 1px solid var(--parchment);
-    margin-bottom: -1px;
-  }
-  .tab-btn {
-    font-family: 'Outfit', sans-serif;
-    font-size: 0.62rem;
-    font-weight: 400;
-    letter-spacing: 0.26em;
-    text-transform: uppercase;
-    padding: 12px 24px;
-    border: none;
-    background: transparent;
-    color: var(--text-soft);
-    cursor: pointer;
-    border-bottom: 2px solid transparent;
-    transition: all 0.2s;
-    position: relative;
-    bottom: -1px;
-  }
-  .tab-btn:hover { color: var(--text-mid); }
-  .tab-btn.active {
-    color: var(--gold);
-    border-bottom-color: var(--gold);
-    background: #fff;
-  }
-
-  /* Settings card now row 4 */
-  .settings-card {
-    grid-column: 1 / 3;
-    grid-row: 4;
-    background: #fff;
-    border: 1px solid var(--parchment);
-    border-radius: 2px;
-    box-shadow: 0 2px 24px var(--shadow);
-    padding: 28px 28px;
-    display: none;
-  }
-  .settings-card.active { display: block; }
-
-  /* Guide tab */
-  .guide-card {
-    grid-column: 1 / 3;
-    grid-row: 4;
-    background: #fff;
-    border: 1px solid var(--parchment);
-    border-radius: 2px;
-    box-shadow: 0 2px 24px var(--shadow);
-    padding: 36px 40px;
-    display: none;
-  }
-  .guide-card.active { display: block; }
-
-  .guide-step {
-    display: flex;
-    gap: 20px;
-    margin-bottom: 32px;
-  }
-  .step-num {
-    flex-shrink: 0;
-    width: 32px; height: 32px;
-    background: var(--gold-pale);
-    border: 1px solid var(--gold-line);
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 0.72rem;
-    font-weight: 500;
-    color: var(--gold);
-    letter-spacing: 0;
-  }
-  .step-body { flex: 1; }
-  .step-title {
-    font-size: 0.88rem;
-    font-weight: 500;
-    color: var(--text-dark);
-    margin-bottom: 6px;
-    letter-spacing: 0.02em;
-  }
-  .step-desc {
-    font-size: 0.78rem;
-    font-weight: 300;
-    color: var(--text-mid);
-    line-height: 1.7;
-    margin-bottom: 10px;
-  }
-  .step-desc b { font-weight: 500; color: var(--text-dark); }
-
-  .code-block {
-    background: #1a1610;
-    color: #f0ebe0;
-    font-family: 'Courier New', monospace;
-    font-size: 0.72rem;
-    line-height: 1.7;
-    padding: 16px 20px;
-    border-radius: 2px;
-    overflow-x: auto;
-    position: relative;
-    margin-top: 8px;
-  }
-  .code-block .kw { color: #c9a84c; }
-  .code-block .str { color: #a8d8a8; }
-  .code-block .cm { color: #6a7d6a; font-style: italic; }
-  .code-block .fn { color: #d4af57; }
-
-  .btn-copy {
-    position: absolute;
-    top: 10px; right: 10px;
-    font-family: 'Outfit', sans-serif;
-    font-size: 0.58rem;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    padding: 5px 12px;
-    background: rgba(201,168,76,0.15);
-    color: var(--gold-line);
-    border: 1px solid rgba(201,168,76,0.3);
-    border-radius: 1px;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-  .btn-copy:hover { background: rgba(201,168,76,0.3); }
-  .btn-copy.copied { color: #a8d8a8; border-color: #a8d8a8; background: rgba(168,216,168,0.1); }
-
-  .guide-divider {
-    height: 1px;
-    background: linear-gradient(90deg, var(--parchment), transparent);
-    margin: 4px 0 32px;
-  }
-
-  .guide-tip {
-    background: var(--gold-pale);
-    border-left: 3px solid var(--gold-line);
-    padding: 12px 16px;
-    border-radius: 0 2px 2px 0;
-    font-size: 0.75rem;
-    font-weight: 300;
-    color: var(--text-mid);
-    line-height: 1.6;
-    margin-top: 10px;
-  }
-  .guide-tip b { font-weight: 500; color: var(--gold); }
-
-
-  /* ── DISPLAY FILTER ── */
-  .filter-select {
-    font-family: 'Outfit', sans-serif;
-    font-size: 0.62rem;
-    font-weight: 400;
-    letter-spacing: 0.16em;
-    color: var(--text-mid);
-    background: var(--ivory);
-    border: 1px solid var(--parchment);
-    padding: 6px 10px;
-    border-radius: 1px;
-    cursor: pointer;
-    outline: none;
-    transition: border-color 0.2s;
-  }
-  .filter-select:focus { border-color: var(--gold-line); }
-
-  .btn-clear-all {
-    font-family: 'Outfit', sans-serif;
-    font-size: 0.62rem;
-    font-weight: 400;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    padding: 7px 16px;
-    background: transparent;
-    color: #b04040;
-    border: 1px solid #e8c0c0;
-    cursor: pointer;
-    border-radius: 1px;
-    transition: all 0.2s;
-  }
-  .btn-clear-all:hover { background: #fff0f0; border-color: #c04040; }
-
-  .hidden-rows-note {
-    text-align: center;
-    padding: 10px;
-    font-size: 0.7rem;
-    color: var(--text-soft);
-    font-style: italic;
-    border-top: 1px dashed var(--parchment);
-  }
-
-  /* Modal confirm */
-  .modal-overlay {
-    position: fixed; inset: 0;
-    background: rgba(26,22,16,0.45);
-    z-index: 1000;
-    display: none;
-    align-items: center;
-    justify-content: center;
-  }
-  .modal-overlay.show { display: flex; }
-  .modal-box {
-    background: #fff;
-    border: 1px solid var(--parchment);
-    border-radius: 2px;
-    box-shadow: 0 8px 40px rgba(0,0,0,0.18);
-    padding: 36px 40px;
-    max-width: 380px;
-    width: 90%;
-    text-align: center;
-  }
-  .modal-title {
-    font-family: 'DM Serif Display', serif;
-    font-size: 1.2rem;
-    font-weight: 400;
-    color: var(--text-dark);
-    margin-bottom: 10px;
-  }
-  .modal-desc {
-    font-size: 0.78rem;
-    font-weight: 300;
-    color: var(--text-soft);
-    margin-bottom: 28px;
-    line-height: 1.6;
-  }
-  .modal-actions { display: flex; gap: 12px; justify-content: center; }
-  .modal-cancel {
-    font-family: 'Outfit', sans-serif;
-    font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase;
-    padding: 10px 24px;
-    background: var(--cream); color: var(--text-mid);
-    border: 1px solid var(--parchment); cursor: pointer; border-radius: 1px;
-    transition: all 0.2s;
-  }
-  .modal-cancel:hover { background: var(--parchment); }
-  .modal-confirm {
-    font-family: 'Outfit', sans-serif;
-    font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase;
-    padding: 10px 24px;
-    background: #c04040; color: #fff;
-    border: none; cursor: pointer; border-radius: 1px;
-    transition: all 0.2s;
-  }
-  .modal-confirm:hover { background: #a03030; }
-
+/* RESPONSIVE */
+@media(max-width:700px){
+  .page-wrap{grid-template-columns:1fr;grid-template-rows:auto auto auto auto;padding:12px 12px 40px;}
+  .timer-card{grid-column:1;grid-row:1;position:static;}
+  .table-card{grid-column:1;grid-row:2;}
+  .tab-nav{grid-column:1;grid-row:3;}
+  .tab-content{grid-column:1;grid-row:4;}
+  #panel-guide{padding:20px;}
+}
 </style>
 </head>
 <body>
 
 <div class="page-wrap">
 
-  <!-- TIMER CARD (left) -->
+  <!-- TIMER CARD -->
   <div class="timer-card">
-
-    <!-- Recent tasks preview -->
     <div class="recent-tasks">
       <div class="recent-label">Gần đây</div>
       <div id="recentPreview"><div class="recent-empty">Chưa có công việc</div></div>
     </div>
-
     <div class="section-label">Đồng hồ tập trung</div>
-
     <div class="timer-display">
       <span class="timer-clock" id="timerClock">10:00</span>
       <span class="timer-sublabel">phút còn lại</span>
     </div>
-
     <div class="duration-row">
-      <button class="btn-duration active" onclick="setDuration(10, this)">10 phút</button>
-      <button class="btn-duration" onclick="setDuration(20, this)">20 phút</button>
+      <button class="btn-duration active" onclick="setDuration(10,this)">10 phút</button>
+      <button class="btn-duration" onclick="setDuration(20,this)">20 phút</button>
     </div>
-
     <div class="controls-row">
       <button class="btn-ctrl btn-start" onclick="startTimer()">Bắt đầu</button>
       <button class="btn-ctrl btn-pause" onclick="pauseTimer()">Dừng</button>
@@ -689,10 +184,9 @@
     </div>
   </div>
 
-  <!-- TABLE CARD (right) -->
+  <!-- TABLE CARD -->
   <div class="table-card">
     <div class="section-label">Nhật ký công việc</div>
-
     <div class="table-controls">
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
         <span class="shortcut-hint">Thêm nhanh: <span class="shortcut-key">Ctrl</span> + <span class="shortcut-key">D</span></span>
@@ -703,22 +197,20 @@
           <option value="0">Tất cả</option>
         </select>
       </div>
-      <div style="display:flex;align-items:center;gap:10px;">
-        <span id="rowCount" style="font-size:0.72rem;font-weight:300;color:var(--text-soft);">0 mục</span>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span id="rowCount" style="font-size:0.7rem;font-weight:300;color:var(--text-soft);">0 mục</span>
         <button class="btn-clear-all" onclick="confirmClearAll()">🗑 Xóa tất cả</button>
-        <button class="btn-add" onclick="addRow()">+ Thêm công việc</button>
+        <button class="btn-add" onclick="addRow()">+ Thêm</button>
       </div>
     </div>
-
     <div class="table-wrap">
       <table>
         <thead>
           <tr>
-            <th>Ngày</th>
-            <th>Giờ</th>
-            <th style="min-width:200px">Việc cần làm</th>
-            <th style="min-width:130px">Link</th>
-            <th style="width:36px"></th>
+            <th>Ngày</th><th>Giờ</th>
+            <th style="min-width:180px">Việc cần làm</th>
+            <th style="min-width:120px">Link</th>
+            <th style="width:32px"></th>
           </tr>
         </thead>
         <tbody id="taskBody"></tbody>
@@ -728,116 +220,96 @@
 
   <!-- TAB NAV -->
   <div class="tab-nav">
-    <button class="tab-btn active" onclick="switchTab('sync')">⚙ Đồng bộ Google Sheets</button>
-    <button class="tab-btn" onclick="switchTab('guide')">📖 Hướng dẫn thiết lập</button>
+    <button class="tab-btn active" id="btn-sync" onclick="switchTab('sync')">⚙ Đồng bộ Google Sheets</button>
+    <button class="tab-btn" id="btn-guide" onclick="switchTab('guide')">📖 Hướng dẫn thiết lập</button>
   </div>
 
-  <!-- SYNC CARD -->
-  <div class="settings-card active" id="tab-sync">
-    <div class="section-label">Đồng bộ Google Sheets</div>
-    <div class="field">
-      <label>Apps Script URL</label>
-      <input type="text" id="scriptUrl"
-        placeholder="https://script.google.com/macros/s/..."
-        value="https://script.google.com/macros/s/AKfycbwQtgA2pzMPQ5YU_EKfC9fjmtP5XEiaGFPb9VVw4P8sG7Yr67CGJLblMr0e0lvuzFv3jg/exec">
-    </div>
-    <div class="settings-footer">
-      <button class="btn-save-sheet" onclick="saveToSheet()">Lưu lên Google Sheets</button>
-      <span class="save-msg" id="saveMsg"></span>
-    </div>
-  </div>
+  <!-- TAB CONTENT WRAPPER -->
+  <div class="tab-content">
 
-  <!-- GUIDE CARD -->
-  <div class="guide-card" id="tab-guide">
-    <div class="section-label">Hướng dẫn thiết lập Google Sheets</div>
-    <p class="step-desc" style="margin-bottom:28px;">Làm theo 4 bước dưới đây để tạo Google Sheet riêng và kết nối với app.</p>
-
-    <!-- STEP 1 -->
-    <div class="guide-step">
-      <div class="step-num">1</div>
-      <div class="step-body">
-        <div class="step-title">Tạo Google Sheet mới</div>
-        <div class="step-desc">
-          Truy cập <b>sheets.google.com</b> → Click <b>"Trống"</b> để tạo sheet mới.<br>
-          Sheet đầu tiên (tab dưới cùng) giữ nguyên tên mặc định, hoặc đổi tên tùy ý — sẽ dùng ở bước sau.
-        </div>
-        <div class="guide-tip"><b>Lưu ý:</b> Không cần thay đổi gì trong sheet, để trống hoàn toàn. App sẽ tự điền dữ liệu vào.</div>
+    <!-- PANEL: SYNC -->
+    <div id="panel-sync">
+      <div class="section-label">Đồng bộ Google Sheets</div>
+      <div class="field">
+        <label>Apps Script URL</label>
+        <input type="text" id="scriptUrl" placeholder="https://script.google.com/macros/s/...">
+      </div>
+      <div class="settings-footer">
+        <button class="btn-save-sheet" onclick="saveToSheet()">Lưu lên Google Sheets</button>
+        <span class="save-msg" id="saveMsg"></span>
       </div>
     </div>
-    <div class="guide-divider"></div>
 
-    <!-- STEP 2 -->
-    <div class="guide-step">
-      <div class="step-num">2</div>
-      <div class="step-body">
-        <div class="step-title">Mở Apps Script trong Sheet</div>
-        <div class="step-desc">
-          Trong Google Sheet vừa tạo → Click menu <b>"Tiện ích mở rộng"</b> (Extensions) → Chọn <b>"Apps Script"</b>.<br>
-          Một tab mới sẽ mở ra với editor code.
+    <!-- PANEL: GUIDE -->
+    <div id="panel-guide">
+      <div class="section-label">Hướng dẫn thiết lập Google Sheets</div>
+      <p class="step-desc" style="margin-bottom:24px;">Làm theo 4 bước dưới đây để tạo Google Sheet riêng và kết nối với app.</p>
+
+      <div class="guide-step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <div class="step-title">Tạo Google Sheet mới</div>
+          <div class="step-desc">Truy cập <b>sheets.google.com</b> → Click <b>"Trống"</b> để tạo sheet mới. Để trống hoàn toàn, app sẽ tự điền dữ liệu vào.</div>
+          <div class="guide-tip"><b>Lưu ý:</b> Không cần thay đổi gì trong sheet.</div>
         </div>
       </div>
-    </div>
-    <div class="guide-divider"></div>
+      <div class="guide-divider"></div>
 
-    <!-- STEP 3 -->
-    <div class="guide-step">
-      <div class="step-num">3</div>
-      <div class="step-body">
-        <div class="step-title">Paste code vào Apps Script</div>
-        <div class="step-desc">
-          Xóa toàn bộ code cũ trong editor → Paste đoạn code bên dưới vào → Click <b>💾 Save</b>.
+      <div class="guide-step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <div class="step-title">Mở Apps Script</div>
+          <div class="step-desc">Trong Google Sheet → Click menu <b>"Tiện ích mở rộng"</b> → Chọn <b>"Apps Script"</b>. Một tab mới sẽ mở ra với editor code.</div>
         </div>
-        <div class="code-block" id="codeBlock">
-          <button class="btn-copy" onclick="copyCode()">Copy</button>
+      </div>
+      <div class="guide-divider"></div>
+
+      <div class="guide-step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <div class="step-title">Paste code vào Apps Script</div>
+          <div class="step-desc">Xóa toàn bộ code cũ → Paste code bên dưới vào → Click <b>💾 Save</b>.</div>
+          <div class="code-block">
+            <button class="btn-copy" onclick="copyCode(this)">Copy</button>
 <span class="cm">// Work Atelier — Apps Script</span>
 <span class="kw">function</span> <span class="fn">doPost</span>(e) {
   <span class="kw">try</span> {
     <span class="kw">var</span> sheet = SpreadsheetApp.getActiveSpreadsheet().getSheets()[<span class="str">0</span>];
-    <span class="kw">var</span> raw = e.postData.contents;
-    <span class="kw">var</span> body = JSON.parse(raw);
-    <span class="kw">var</span> rows = body.rows;
-    <span class="kw">for</span> (<span class="kw">var</span> i = <span class="str">0</span>; i &lt; rows.length; i++) {
-      sheet.appendRow(rows[i]);
-    }
+    <span class="kw">var</span> body = JSON.parse(e.postData.contents);
+    body.rows.forEach(<span class="kw">function</span>(row){ sheet.appendRow(row); });
     <span class="kw">return</span> ContentService
-      .createTextOutput(JSON.stringify({success: <span class="kw">true</span>}))
+      .createTextOutput(JSON.stringify({success:<span class="kw">true</span>}))
       .setMimeType(ContentService.MimeType.JSON);
   } <span class="kw">catch</span>(err) {
     <span class="kw">return</span> ContentService
-      .createTextOutput(JSON.stringify({error: err.message}))
+      .createTextOutput(JSON.stringify({error:err.message}))
       .setMimeType(ContentService.MimeType.JSON);
   }
-}
+}</div>
         </div>
       </div>
-    </div>
-    <div class="guide-divider"></div>
+      <div class="guide-divider"></div>
 
-    <!-- STEP 4 -->
-    <div class="guide-step">
-      <div class="step-num">4</div>
-      <div class="step-body">
-        <div class="step-title">Deploy và lấy URL</div>
-        <div class="step-desc">
-          1. Click <b>"Deploy"</b> (góc trên phải) → <b>"New deployment"</b><br>
-          2. Click biểu tượng <b>⚙ bánh răng</b> → Chọn <b>"Web app"</b><br>
-          3. Điền thông tin:<br>
-          &nbsp;&nbsp;• <b>Execute as:</b> Me<br>
-          &nbsp;&nbsp;• <b>Who has access:</b> Anyone<br>
-          4. Click <b>"Deploy"</b> → Google sẽ hỏi cấp quyền → Click <b>"Authorize"</b> → <b>"Allow"</b><br>
-          5. <b>Copy URL</b> hiện ra (dạng https://script.google.com/macros/s/.../exec)
-        </div>
-        <div class="guide-tip">
-          <b>Quan trọng:</b> Dán URL vừa copy vào tab <b>"Đồng bộ Google Sheets"</b> của app, rồi nhấn <b>"Lưu lên Google Sheets"</b> để kiểm tra kết nối.
+      <div class="guide-step">
+        <div class="step-num">4</div>
+        <div class="step-body">
+          <div class="step-title">Deploy và lấy URL</div>
+          <div class="step-desc">
+            1. Click <b>"Deploy"</b> → <b>"New deployment"</b><br>
+            2. Click <b>⚙ bánh răng</b> → chọn <b>"Web app"</b><br>
+            3. <b>Execute as: Me</b> · <b>Who has access: Anyone</b><br>
+            4. Click <b>"Deploy"</b> → cấp quyền → <b>Copy URL</b>
+          </div>
+          <div class="guide-tip"><b>Sau đó:</b> Dán URL vào tab <b>"Đồng bộ Google Sheets"</b> → nhấn <b>"Lưu lên Google Sheets"</b> để kiểm tra.</div>
         </div>
       </div>
     </div>
 
-  </div>
+  </div><!-- end tab-content -->
 
-</div>
+</div><!-- end page-wrap -->
 
-<!-- CONFIRM MODAL -->
+<!-- MODAL -->
 <div class="modal-overlay" id="clearModal">
   <div class="modal-box">
     <div class="modal-title">Xóa tất cả công việc?</div>
@@ -852,158 +324,104 @@
 <div class="toast" id="toast"></div>
 
 <script>
+// ─── TABS ────────────────────────────────────────────────
+function switchTab(name) {
+  document.getElementById('btn-sync').classList.toggle('active', name === 'sync');
+  document.getElementById('btn-guide').classList.toggle('active', name === 'guide');
+  document.getElementById('panel-sync').style.display = name === 'sync' ? 'block' : 'none';
+  document.getElementById('panel-guide').style.display = name === 'guide' ? 'block' : 'none';
+}
+
 // ─── TIMER ───────────────────────────────────────────────
-let totalSeconds = 600;
-let remainingSeconds = 600;
-let timerInterval = null;
-let isRunning = false;
+let totalSeconds = 600, remainingSeconds = 600, timerInterval = null, isRunning = false;
 
 function setDuration(mins, btn) {
   if (isRunning) return;
   document.querySelectorAll('.btn-duration').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
-  totalSeconds = mins * 60;
-  remainingSeconds = totalSeconds;
+  totalSeconds = mins * 60; remainingSeconds = totalSeconds;
   updateClockDisplay();
   document.getElementById('timerClock').className = 'timer-clock';
 }
-
 function startTimer() {
   if (isRunning) return;
   isRunning = true;
   document.getElementById('timerClock').classList.add('running');
   timerInterval = setInterval(tick, 1000);
 }
-
 function pauseTimer() {
   if (!isRunning) return;
-  isRunning = false;
-  clearInterval(timerInterval);
+  isRunning = false; clearInterval(timerInterval);
   document.getElementById('timerClock').classList.remove('running');
 }
-
 function resetTimer() {
-  pauseTimer();
-  remainingSeconds = totalSeconds;
-  updateClockDisplay();
+  pauseTimer(); remainingSeconds = totalSeconds; updateClockDisplay();
   document.getElementById('timerClock').className = 'timer-clock';
 }
-
 function tick() {
   if (remainingSeconds <= 0) {
-    pauseTimer();
-    remainingSeconds = 0;
-    updateClockDisplay();
+    pauseTimer(); remainingSeconds = 0; updateClockDisplay();
     document.getElementById('timerClock').className = 'timer-clock ending';
-    playChime();
-    showToast('⏰ Phiên làm việc kết thúc!');
-    return;
+    playChime(); showToast('⏰ Phiên làm việc kết thúc!'); return;
   }
   remainingSeconds--;
   updateClockDisplay();
-  if (remainingSeconds <= 10) {
-    document.getElementById('timerClock').classList.add('ending');
-  }
+  if (remainingSeconds <= 10) document.getElementById('timerClock').classList.add('ending');
 }
-
 function updateClockDisplay() {
-  const m = Math.floor(remainingSeconds / 60).toString().padStart(2, '0');
-  const s = (remainingSeconds % 60).toString().padStart(2, '0');
-  document.getElementById('timerClock').textContent = m + ':' + s;
+  const m = Math.floor(remainingSeconds/60).toString().padStart(2,'0');
+  const s = (remainingSeconds%60).toString().padStart(2,'0');
+  document.getElementById('timerClock').textContent = m+':'+s;
 }
 
 // ─── CHIME ───────────────────────────────────────────────
-let chimeCtx = null;
-let chimeGain = null;
-let chimeInterval = null;
-
+let chimeCtx = null, chimeTimeout = null;
 function playChime() {
   stopChime();
   try {
     chimeCtx = new (window.AudioContext || window.webkitAudioContext)();
-    chimeGain = chimeCtx.createGain();
-    chimeGain.connect(chimeCtx.destination);
-
-    let elapsed = 0;
-    const DURATION = 60; // seconds total
-    const REPEAT = 3.5;  // seconds between each chime sequence
-
-    function playSequence(startTime) {
-      [523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => {
-        const osc = chimeCtx.createOscillator();
-        const g = chimeCtx.createGain();
-        osc.connect(g); g.connect(chimeGain);
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(freq, startTime);
-        const t = startTime + i * 0.28;
-        g.gain.setValueAtTime(0, t);
-        g.gain.linearRampToValueAtTime(0.22, t + 0.04);
-        g.gain.exponentialRampToValueAtTime(0.001, t + 1.1);
-        osc.start(t); osc.stop(t + 1.1);
+    const DURATION = 60, REPEAT = 3.5;
+    function playSeq(t) {
+      [523.25,659.25,783.99,1046.50].forEach((freq,i) => {
+        const osc = chimeCtx.createOscillator(), g = chimeCtx.createGain();
+        osc.connect(g); g.connect(chimeCtx.destination);
+        osc.type = 'sine'; osc.frequency.setValueAtTime(freq, t);
+        const s = t + i*0.28;
+        g.gain.setValueAtTime(0,s); g.gain.linearRampToValueAtTime(0.22,s+0.04);
+        g.gain.exponentialRampToValueAtTime(0.001,s+1.1);
+        osc.start(s); osc.stop(s+1.1);
       });
     }
-
-    // Play immediately then repeat every REPEAT seconds for DURATION seconds
-    const start = chimeCtx.currentTime;
-    let t = start;
-    while (t - start < DURATION) {
-      playSequence(t);
-      t += REPEAT;
-    }
-
-    // Auto-stop after DURATION
-    chimeInterval = setTimeout(stopChime, DURATION * 1000);
+    let t = chimeCtx.currentTime;
+    while (t - chimeCtx.currentTime < DURATION) { playSeq(t); t += REPEAT; }
+    chimeTimeout = setTimeout(stopChime, DURATION*1000);
   } catch(e) {}
 }
-
 function stopChime() {
-  if (chimeCtx) {
-    try { chimeCtx.close(); } catch(e) {}
-    chimeCtx = null;
-    chimeGain = null;
-  }
-  if (chimeInterval) {
-    clearTimeout(chimeInterval);
-    chimeInterval = null;
-  }
+  if (chimeCtx) { try { chimeCtx.close(); } catch(e) {} chimeCtx = null; }
+  if (chimeTimeout) { clearTimeout(chimeTimeout); chimeTimeout = null; }
 }
 
-// ─── TASK TABLE ───────────────────────────────────────────
+// ─── TASKS ───────────────────────────────────────────────
 let rows = [];
-
-function todayStr() { return new Date().toISOString().slice(0, 10); }
-function nowStr() { return new Date().toTimeString().slice(0, 5); }
+function todayStr() { return new Date().toISOString().slice(0,10); }
+function nowStr() { return new Date().toTimeString().slice(0,5); }
 
 function addRow(data) {
   const id = Date.now() + Math.random();
-  const row = data || { id, date: todayStr(), time: nowStr(), task: '', link: '' };
-  if (!data) row.id = id;
-  // Stop chime when user adds a new task
-  if (!data) stopChime();
-  // New rows go to the TOP
-  if (!data) {
-    rows.unshift(row);
-  } else {
-    rows.push(row);
-  }
-  renderTable();
-  renderRecent();
-  saveToBrowser();
-  if (!data) {
-    setTimeout(() => {
-      const inputs = document.querySelectorAll('#taskBody tr td:nth-child(3) input');
-      if (inputs.length) inputs[0].focus(); // first row = newest
-    }, 30);
-  }
+  const row = data || {id, date:todayStr(), time:nowStr(), task:'', link:''};
+  if (!data) { row.id = id; stopChime(); rows.unshift(row); }
+  else rows.push(row);
+  renderTable(); renderRecent(); saveToBrowser();
+  if (!data) setTimeout(() => {
+    const inputs = document.querySelectorAll('#taskBody tr td:nth-child(3) input');
+    if (inputs.length) inputs[0].focus();
+  }, 30);
 }
-
 function deleteRow(id) {
   rows = rows.filter(r => r.id !== id);
-  renderTable();
-  renderRecent();
-  saveToBrowser();
+  renderTable(); renderRecent(); saveToBrowser();
 }
-
 function updateRow(id, field, value) {
   const r = rows.find(r => r.id === id);
   if (r) { r[field] = value; renderRecent(); saveToBrowser(); }
@@ -1012,154 +430,82 @@ function updateRow(id, field, value) {
 function renderTable() {
   const tbody = document.getElementById('taskBody');
   tbody.innerHTML = '';
-  const limitEl = document.getElementById('displayLimit');
-  const limit = limitEl ? parseInt(limitEl.value) : 10;
-  const visible = (limit === 0) ? rows : rows.slice(0, limit);
+  const limit = parseInt(document.getElementById('displayLimit').value);
+  const visible = limit === 0 ? rows : rows.slice(0, limit);
   const hidden = rows.length - visible.length;
-
   visible.forEach(row => {
     const tr = document.createElement('tr');
     const linkCell = row.link
-      ? '<div class="link-display"><a href="' + escHtml(row.link) + '" target="_blank" rel="noopener">' + shortUrl(row.link) + '</a>' +
-        '<br><input type="text" class="cell-input link-edit" value="' + escHtml(row.link) + '"' +
-        ' onchange="updateRow(' + JSON.stringify(row.id) + ', 'link', this.value); renderTable();" onfocus="this.select()"></div>'
-      : '<input type="text" class="cell-input" placeholder="https://..." value="' + escHtml(row.link) + '"' +
-        ' onchange="updateRow(' + JSON.stringify(row.id) + ', 'link', this.value); renderTable();">';
-
+      ? '<div class="link-display"><a href="'+escH(row.link)+'" target="_blank" rel="noopener">'+shortUrl(row.link)+'</a>'
+        +'<br><input type="text" class="cell-input" style="font-size:0.7rem" value="'+escH(row.link)+'"'
+        +' onchange="updateRow('+JSON.stringify(row.id)+',\'link\',this.value);renderTable();" onfocus="this.select()"></div>'
+      : '<input type="text" class="cell-input" placeholder="https://..." value="'+escH(row.link)+'"'
+        +' onchange="updateRow('+JSON.stringify(row.id)+',\'link\',this.value);renderTable();">';
     tr.innerHTML =
-      '<td><input type="date" class="cell-input" value="' + escHtml(row.date) + '" onchange="updateRow(' + JSON.stringify(row.id) + ', 'date', this.value)"></td>' +
-      '<td><input type="time" class="cell-input" value="' + escHtml(row.time) + '" onchange="updateRow(' + JSON.stringify(row.id) + ', 'time', this.value)"></td>' +
-      '<td><input type="text" class="cell-input" placeholder="Mô tả công việc..." value="' + escHtml(row.task) + '" onchange="updateRow(' + JSON.stringify(row.id) + ', 'task', this.value)"></td>' +
-      '<td>' + linkCell + '</td>' +
-      '<td><button class="btn-del" onclick="deleteRow(' + JSON.stringify(row.id) + ')" title="Xóa">×</button></td>';
+      '<td><input type="date" class="cell-input" value="'+escH(row.date)+'" onchange="updateRow('+JSON.stringify(row.id)+',\'date\',this.value)"></td>'+
+      '<td><input type="time" class="cell-input" value="'+escH(row.time)+'" onchange="updateRow('+JSON.stringify(row.id)+',\'time\',this.value)"></td>'+
+      '<td><input type="text" class="cell-input" placeholder="Mô tả công việc..." value="'+escH(row.task)+'" onchange="updateRow('+JSON.stringify(row.id)+',\'task\',this.value)"></td>'+
+      '<td>'+linkCell+'</td>'+
+      '<td><button class="btn-del" onclick="deleteRow('+JSON.stringify(row.id)+')" title="Xóa">×</button></td>';
     tbody.appendChild(tr);
   });
-
   if (hidden > 0) {
     const tr = document.createElement('tr');
-    tr.innerHTML = '<td colspan="5" class="hidden-rows-note">... và ' + hidden + ' việc khác (đổi bộ lọc để xem thêm)</td>';
+    tr.innerHTML = '<td colspan="5" class="hidden-rows-note">... và '+hidden+' việc khác (đổi bộ lọc để xem thêm)</td>';
     tbody.appendChild(tr);
   }
-
   document.getElementById('rowCount').textContent = rows.length + ' mục';
 }
+
 function renderRecent() {
   const el = document.getElementById('recentPreview');
-  const recent = rows.filter(r => r.task).slice(0, 2);
-  if (!recent.length) {
-    el.innerHTML = '<div class="recent-empty">Chưa có công việc</div>';
-    return;
-  }
-  el.innerHTML = recent.map((r, i) =>
-    '<div class="recent-item">' +
-    '<div class="recent-task-text">' + escHtml(r.task || '—') + '</div>' +
-    '<div class="recent-task-meta">' + r.date + ' · ' + r.time + '</div>' +
-    '</div>'
+  const recent = rows.filter(r => r.task).slice(0,2);
+  if (!recent.length) { el.innerHTML = '<div class="recent-empty">Chưa có công việc</div>'; return; }
+  el.innerHTML = recent.map(r =>
+    '<div class="recent-item"><div class="recent-task-text">'+escH(r.task||'—')+'</div>'
+    +'<div class="recent-task-meta">'+r.date+' · '+r.time+'</div></div>'
   ).join('');
 }
 
-function escHtml(s) {
-  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-function shortUrl(url) {
-  try { return new URL(url).hostname.replace('www.',''); } catch { return url.slice(0,20)+'…'; }
+function escH(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function shortUrl(url) { try { return new URL(url).hostname.replace('www.',''); } catch { return url.slice(0,20)+'…'; } }
+
+// ─── CLEAR ALL ───────────────────────────────────────────
+function confirmClearAll() { document.getElementById('clearModal').classList.add('show'); }
+function closeClearModal() { document.getElementById('clearModal').classList.remove('show'); }
+function clearAll() {
+  rows = []; renderTable(); renderRecent(); saveToBrowser();
+  closeClearModal(); showToast('🗑 Đã xóa — sẵn sàng ngày mới!');
 }
 
-// ─── LOCALSTORAGE ─────────────────────────────────────────
-function saveToBrowser() {
-  localStorage.setItem('wa_rows', JSON.stringify(rows));
-}
+// ─── STORAGE ─────────────────────────────────────────────
+function saveToBrowser() { localStorage.setItem('wa_rows', JSON.stringify(rows)); }
 function loadFromBrowser() {
-  try {
-    rows = JSON.parse(localStorage.getItem('wa_rows') || '[]');
-    renderTable();
-    renderRecent();
-  } catch {}
-  const saved_url = localStorage.getItem('wa_scriptUrl');
-  if (saved_url) document.getElementById('scriptUrl').value = saved_url;
+  try { rows = JSON.parse(localStorage.getItem('wa_rows')||'[]'); renderTable(); renderRecent(); } catch {}
+  const url = localStorage.getItem('wa_scriptUrl');
+  if (url) document.getElementById('scriptUrl').value = url;
 }
 document.getElementById('scriptUrl').addEventListener('input', function() {
   localStorage.setItem('wa_scriptUrl', this.value);
 });
 
-// ─── TAB SWITCHING ───────────────────────────────────────
-function switchTab(name) {
-  document.querySelectorAll('.tab-btn').forEach((b, i) => {
-    b.classList.toggle('active', (i === 0 && name === 'sync') || (i === 1 && name === 'guide'));
-  });
-  document.getElementById('tab-sync').classList.toggle('active', name === 'sync');
-  document.getElementById('tab-guide').classList.toggle('active', name === 'guide');
-}
-
-function copyCode() {
-  const code = `// Work Atelier — Apps Script
-function doPost(e) {
-  try {
-    var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheets()[0];
-    var raw = e.postData.contents;
-    var body = JSON.parse(raw);
-    var rows = body.rows;
-    for (var i = 0; i < rows.length; i++) {
-      sheet.appendRow(rows[i]);
-    }
-    return ContentService
-      .createTextOutput(JSON.stringify({success: true}))
-      .setMimeType(ContentService.MimeType.JSON);
-  } catch(err) {
-    return ContentService
-      .createTextOutput(JSON.stringify({error: err.message}))
-      .setMimeType(ContentService.MimeType.JSON);
-  }
-}`;
-  navigator.clipboard.writeText(code).then(() => {
-    const btn = document.querySelector('.btn-copy');
-    btn.textContent = 'Copied!';
-    btn.classList.add('copied');
-    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
-  });
-}
-
-// ─── CLEAR ALL ───────────────────────────────────────────
-function confirmClearAll() {
-  document.getElementById('clearModal').classList.add('show');
-}
-function closeClearModal() {
-  document.getElementById('clearModal').classList.remove('show');
-}
-function clearAll() {
-  rows = [];
-  renderTable();
-  renderRecent();
-  saveToBrowser();
-  closeClearModal();
-  showToast('🗑 Đã xóa tất cả — sẵn sàng ngày mới!');
-}
-
-// ─── GOOGLE SHEETS via Apps Script (POST) ────────────────
+// ─── GOOGLE SHEETS ────────────────────────────────────────
 async function saveToSheet() {
   const scriptUrl = document.getElementById('scriptUrl').value.trim();
   if (!scriptUrl) { showSaveMsg('Vui lòng nhập Apps Script URL.', true); return; }
   if (!rows.length) { showSaveMsg('Không có dữ liệu để lưu.', true); return; }
-
   showSaveMsg('Đang lưu…', false);
-
-  const payload = { rows: rows.map(r => [r.date, r.time, r.task, r.link]) };
-
   try {
     const res = await fetch(scriptUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify(payload)
+      method:'POST', headers:{'Content-Type':'text/plain'},
+      body: JSON.stringify({rows: rows.map(r => [r.date, r.time, r.task, r.link])})
     });
     const json = await res.json();
     if (json.error) throw new Error(json.error);
-    showSaveMsg('✓ Đã lưu ' + rows.length + ' dòng lên Google Sheets!', false);
+    showSaveMsg('✓ Đã lưu '+rows.length+' dòng!', false);
     showToast('✓ Đã lưu lên Google Sheets');
-  } catch(e) {
-    showSaveMsg('Lỗi: ' + e.message, true);
-  }
+  } catch(e) { showSaveMsg('Lỗi: '+e.message, true); }
 }
-
 function showSaveMsg(msg, isError) {
   const el = document.getElementById('saveMsg');
   el.textContent = msg;
@@ -1170,23 +516,43 @@ function showSaveMsg(msg, isError) {
 // ─── TOAST ───────────────────────────────────────────────
 function showToast(msg) {
   const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
+  t.textContent = msg; t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 3000);
 }
 
-// ─── KEYBOARD SHORTCUTS ───────────────────────────────────
-document.addEventListener('keydown', function(e) {
-  if ((e.ctrlKey || e.metaKey) && e.key === 'd') {
-    e.preventDefault();
-    addRow();
+// ─── COPY CODE ───────────────────────────────────────────
+function copyCode(btn) {
+  const code = `// Work Atelier — Apps Script
+function doPost(e) {
+  try {
+    var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheets()[0];
+    var body = JSON.parse(e.postData.contents);
+    body.rows.forEach(function(row){ sheet.appendRow(row); });
+    return ContentService
+      .createTextOutput(JSON.stringify({success:true}))
+      .setMimeType(ContentService.MimeType.JSON);
+  } catch(err) {
+    return ContentService
+      .createTextOutput(JSON.stringify({error:err.message}))
+      .setMimeType(ContentService.MimeType.JSON);
   }
+}`;
+  navigator.clipboard.writeText(code).then(() => {
+    btn.textContent = 'Copied!'; btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+// ─── KEYBOARD ────────────────────────────────────────────
+document.addEventListener('keydown', function(e) {
+  if ((e.ctrlKey||e.metaKey) && e.key==='d') { e.preventDefault(); addRow(); }
 });
 
-// ─── INIT ─────────────────────────────────────────────────
+// ─── INIT ────────────────────────────────────────────────
 updateClockDisplay();
 loadFromBrowser();
 if (rows.length === 0) addRow();
+switchTab('sync');
 </script>
 </body>
 </html>
