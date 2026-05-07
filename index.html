@@ -689,7 +689,7 @@ function toggleSettings() {
   icon.style.transform = body.classList.contains('open') ? 'rotate(180deg)' : '';
 }
 
-// ─── GOOGLE SHEETS via Apps Script ───────────────────────
+// ─── GOOGLE SHEETS via Apps Script (POST) ────────────────
 async function saveToSheet() {
   const scriptUrl = document.getElementById('scriptUrl').value.trim();
   if (!scriptUrl) { showSaveMsg('Vui lòng nhập Apps Script URL.', true); return; }
@@ -697,17 +697,17 @@ async function saveToSheet() {
 
   showSaveMsg('Đang lưu…', false);
 
-  // Apps Script doPost with no-cors — use form-encoded to avoid preflight
-  const formData = new FormData();
-  formData.append('data', JSON.stringify(rows.map(r => [r.date, r.time, r.task, r.link])));
+  const payload = { rows: rows.map(r => [r.date, r.time, r.task, r.link]) };
 
   try {
-    await fetch(scriptUrl, {
+    const res = await fetch(scriptUrl, {
       method: 'POST',
-      mode: 'no-cors',
-      body: formData
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify(payload)
     });
-    showSaveMsg('✓ Đã gửi ' + rows.length + ' dòng lên Google Sheets!', false);
+    const json = await res.json();
+    if (json.error) throw new Error(json.error);
+    showSaveMsg('✓ Đã lưu ' + rows.length + ' dòng lên Google Sheets!', false);
     showToast('✓ Đã lưu lên Google Sheets');
   } catch(e) {
     showSaveMsg('Lỗi: ' + e.message, true);
