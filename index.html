@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Work Atelier — Progress Manager</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ivory: #f9f6f0;
+    --cream: #f0ebe0;
+    --parchment: #e8e0d0;
+    --gold: #b8972e;
+    --gold-light: #d4af57;
+    --gold-pale: #f5edda;
+    --gold-line: #c9a84c;
+    --text-dark: #1a1610;
+    --text-mid: #4a4238;
+    --text-soft: #8a7d6e;
+    --shadow: rgba(90, 70, 30, 0.12);
+    --shadow-deep: rgba(90, 70, 30, 0.22);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Outfit', sans-serif;
+    background: var(--ivory);
+    color: var(--text-dark);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Background texture */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      radial-gradient(ellipse at 20% 20%, rgba(212,175,87,0.06) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 80%, rgba(184,151,46,0.05) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .page-wrap {
+    position: relative;
+    z-index: 1;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 48px 24px 80px;
+  }
+
+  /* ── HEADER ── */
+  header {
+    text-align: center;
+    margin-bottom: 52px;
+  }
+
+  .logo-mark {
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 10px;
+  }
+
+  .logo-line {
+    width: 48px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold-line));
+  }
+  .logo-line.right {
+    background: linear-gradient(90deg, var(--gold-line), transparent);
+  }
+
+  .logo-diamond {
+    width: 7px;
+    height: 7px;
+    background: var(--gold);
+    transform: rotate(45deg);
+  }
+
+  h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(1.9rem, 4vw, 2.8rem);
+    font-weight: 400;
+    letter-spacing: 0.12em;
+    color: var(--text-dark);
+    text-transform: uppercase;
+  }
+
+  .subtitle {
+    font-size: 0.7rem;
+    font-weight: 300;
+    letter-spacing: 0.35em;
+    color: var(--text-soft);
+    text-transform: uppercase;
+    margin-top: 6px;
+  }
+
+  /* ── CARD ── */
+  .card {
+    background: #fff;
+    border: 1px solid var(--parchment);
+    border-radius: 2px;
+    box-shadow: 0 2px 24px var(--shadow), 0 0 0 1px rgba(255,255,255,0.8) inset;
+    padding: 40px 44px;
+    margin-bottom: 28px;
+  }
+
+  .section-label {
+    font-size: 0.62rem;
+    font-weight: 500;
+    letter-spacing: 0.38em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 28px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, var(--parchment), transparent);
+  }
+
+  /* ── TIMER ── */
+  .timer-display {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+
+  .timer-clock {
+    font-family: 'Outfit', sans-serif;
+    font-size: clamp(4.5rem, 15vw, 8rem);
+    font-weight: 300;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.04em;
+    color: var(--text-dark);
+    line-height: 1;
+    transition: color 0.4s;
+    position: relative;
+    display: inline-block;
+  }
+
+  .timer-clock.running { color: var(--gold); }
+  .timer-clock.ending { color: #c0392b; }
+
+  .timer-clock::after {
+    content: attr(data-label);
+    display: block;
+    font-size: 0.62rem;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 400;
+    letter-spacing: 0.38em;
+    color: var(--text-soft);
+    text-transform: uppercase;
+    margin-top: 6px;
+  }
+
+  .duration-row {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 28px;
+  }
+
+  .btn-duration {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 400;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    padding: 9px 24px;
+    border: 1px solid var(--parchment);
+    background: var(--ivory);
+    color: var(--text-mid);
+    cursor: pointer;
+    border-radius: 1px;
+    transition: all 0.2s;
+  }
+  .btn-duration:hover,
+  .btn-duration.active {
+    border-color: var(--gold);
+    background: var(--gold-pale);
+    color: var(--gold);
+  }
+
+  .controls-row {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+  }
+
+  .btn-ctrl {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.68rem;
+    font-weight: 400;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    padding: 11px 32px;
+    border: none;
+    cursor: pointer;
+    border-radius: 1px;
+    transition: all 0.2s;
+  }
+
+  .btn-start {
+    background: var(--gold);
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(184,151,46,0.35);
+  }
+  .btn-start:hover { background: var(--gold-light); transform: translateY(-1px); }
+  .btn-pause {
+    background: var(--cream);
+    color: var(--text-mid);
+    border: 1px solid var(--parchment);
+  }
+  .btn-pause:hover { background: var(--parchment); }
+  .btn-reset {
+    background: transparent;
+    color: var(--text-soft);
+    border: 1px solid var(--parchment);
+  }
+  .btn-reset:hover { color: var(--text-mid); border-color: var(--text-soft); }
+
+  /* Progress arc */
+  .timer-ring-wrap {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 18px;
+  }
+  .timer-ring {
+    position: relative;
+    width: 180px;
+    height: 180px;
+  }
+  .timer-ring svg {
+    position: absolute;
+    top: 0; left: 0;
+    transform: rotate(-90deg);
+  }
+  .ring-bg { fill: none; stroke: var(--cream); stroke-width: 3; }
+  .ring-progress {
+    fill: none;
+    stroke: var(--gold-line);
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-dasharray: 502;
+    stroke-dashoffset: 0;
+    transition: stroke-dashoffset 1s linear, stroke 0.4s;
+  }
+  .timer-inner {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* ── TABLE ── */
+  .table-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .btn-add {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.68rem;
+    font-weight: 400;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    padding: 10px 26px;
+    background: var(--gold);
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    border-radius: 1px;
+    transition: all 0.2s;
+    box-shadow: 0 3px 12px rgba(184,151,46,0.28);
+  }
+  .btn-add:hover { background: var(--gold-light); transform: translateY(-1px); }
+
+  .table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--parchment);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+  }
+
+  thead tr {
+    background: var(--cream);
+  }
+
+  th {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 400;
+    font-size: 0.6rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--text-soft);
+    padding: 13px 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--parchment);
+    white-space: nowrap;
+  }
+
+  td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--parchment);
+    vertical-align: middle;
+  }
+
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover td { background: var(--gold-pale); }
+
+  .cell-input {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 300;
+    color: var(--text-dark);
+    border: none;
+    background: transparent;
+    outline: none;
+    width: 100%;
+    padding: 2px 0;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.2s;
+  }
+  .cell-input:focus { border-bottom-color: var(--gold-line); }
+  input[type="date"].cell-input, input[type="time"].cell-input {
+    color: var(--text-mid);
+    cursor: pointer;
+  }
+
+  .link-display a {
+    color: var(--gold);
+    text-decoration: none;
+    font-weight: 300;
+    border-bottom: 1px solid var(--parchment);
+    transition: border-color 0.2s;
+    font-size: 0.78rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: inline-block;
+    max-width: 130px;
+  }
+  .link-display a:hover { border-color: var(--gold); }
+
+  .btn-del {
+    background: none;
+    border: none;
+    color: var(--parchment);
+    cursor: pointer;
+    font-size: 1rem;
+    line-height: 1;
+    padding: 2px 6px;
+    transition: color 0.2s;
+    font-weight: 300;
+  }
+  .btn-del:hover { color: #c0392b; }
+
+  /* ── SETTINGS ── */
+  .settings-toggle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    margin-bottom: 0;
+    user-select: none;
+  }
+  .settings-toggle .toggle-icon {
+    font-size: 0.72rem;
+    color: var(--gold);
+    transition: transform 0.3s;
+  }
+  .settings-toggle.open .toggle-icon { transform: rotate(180deg); }
+
+  .settings-body {
+    display: none;
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px solid var(--parchment);
+  }
+  .settings-body.open { display: block; }
+
+  .field-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+    margin-bottom: 18px;
+  }
+  @media (max-width: 560px) { .field-group { grid-template-columns: 1fr; } }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .field label {
+    font-size: 0.6rem;
+    font-weight: 400;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--text-soft);
+  }
+
+  .field input {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 300;
+    padding: 10px 12px;
+    border: 1px solid var(--parchment);
+    background: var(--ivory);
+    color: var(--text-dark);
+    outline: none;
+    border-radius: 1px;
+    transition: border-color 0.2s;
+  }
+  .field input:focus { border-color: var(--gold-line); }
+
+  .settings-footer {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+
+  .btn-save-sheet {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.68rem;
+    font-weight: 400;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    padding: 11px 28px;
+    background: var(--text-dark);
+    color: var(--gold-pale);
+    border: none;
+    cursor: pointer;
+    border-radius: 1px;
+    transition: all 0.2s;
+  }
+  .btn-save-sheet:hover { background: var(--text-mid); }
+
+  .save-msg {
+    font-size: 0.72rem;
+    font-weight: 300;
+    letter-spacing: 0.08em;
+    color: var(--text-soft);
+    opacity: 0;
+    transition: opacity 0.4s;
+  }
+  .save-msg.show { opacity: 1; }
+  .save-msg.error { color: #c0392b; }
+
+  /* ── FOOTER ── */
+  footer {
+    text-align: center;
+    margin-top: 48px;
+    font-size: 0.6rem;
+    font-weight: 300;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--parchment);
+  }
+
+  /* Notification toast */
+  .toast {
+    position: fixed;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--text-dark);
+    color: var(--gold-pale);
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 300;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 14px 32px;
+    border-radius: 1px;
+    opacity: 0;
+    transition: all 0.4s;
+    pointer-events: none;
+    z-index: 999;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+    white-space: nowrap;
+  }
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+</style>
+</head>
+<body>
+
+<div class="page-wrap">
+
+  <!-- HEADER -->
+  <header>
+    <div class="logo-mark">
+      <span class="logo-line"></span>
+      <span class="logo-diamond"></span>
+      <span class="logo-line right"></span>
+    </div>
+    <h1>Work Atelier</h1>
+    <p class="subtitle">Progress & Focus Manager</p>
+  </header>
+
+  <!-- TIMER CARD -->
+  <div class="card">
+    <div class="section-label">Đồng hồ tập trung</div>
+
+    <div class="timer-ring-wrap">
+      <div class="timer-ring">
+        <svg viewBox="0 0 180 180" width="180" height="180">
+          <circle class="ring-bg" cx="90" cy="90" r="80"/>
+          <circle class="ring-progress" id="ringProgress" cx="90" cy="90" r="80"/>
+        </svg>
+        <div class="timer-inner">
+          <div class="timer-clock" id="timerClock" data-label="phút còn lại">10:00</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="duration-row">
+      <button class="btn-duration active" onclick="setDuration(10, this)">10 phút</button>
+      <button class="btn-duration" onclick="setDuration(20, this)">20 phút</button>
+    </div>
+
+    <div class="controls-row">
+      <button class="btn-ctrl btn-start" id="btnStart" onclick="startTimer()">Bắt đầu</button>
+      <button class="btn-ctrl btn-pause" onclick="pauseTimer()">Dừng</button>
+      <button class="btn-ctrl btn-reset" onclick="resetTimer()">Đặt lại</button>
+    </div>
+  </div>
+
+  <!-- TASK TABLE CARD -->
+  <div class="card">
+    <div class="section-label">Nhật ký công việc</div>
+
+    <div class="table-controls">
+      <div style="font-size:0.75rem;font-weight:300;color:var(--text-soft);letter-spacing:0.05em;" id="rowCount">0 mục</div>
+      <button class="btn-add" onclick="addRow()">+ Thêm công việc</button>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Ngày</th>
+            <th>Thời gian</th>
+            <th style="min-width:200px">Việc cần làm</th>
+            <th style="min-width:150px">Link</th>
+            <th style="width:40px"></th>
+          </tr>
+        </thead>
+        <tbody id="taskBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- SETTINGS / GOOGLE SHEETS CARD -->
+  <div class="card">
+    <div class="section-label" style="cursor:pointer" onclick="toggleSettings()">
+      <span>Đồng bộ Google Sheets</span>
+      <span class="toggle-icon" id="toggleIcon">▾</span>
+      <span style="flex:1;height:1px;background:linear-gradient(90deg,var(--parchment),transparent)"></span>
+    </div>
+
+    <div class="settings-body" id="settingsBody">
+      <div class="field-group">
+        <div class="field">
+          <label>Spreadsheet ID</label>
+          <input type="text" id="sheetId" placeholder="1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms">
+        </div>
+        <div class="field">
+          <label>API Key</label>
+          <input type="text" id="apiKey" placeholder="AIzaSy...">
+        </div>
+        <div class="field">
+          <label>Tên Sheet</label>
+          <input type="text" id="sheetName" placeholder="Sheet1" value="Sheet1">
+        </div>
+      </div>
+      <div class="settings-footer">
+        <button class="btn-save-sheet" onclick="saveToSheet()">Lưu lên Google Sheets</button>
+        <span class="save-msg" id="saveMsg"></span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<footer>Work Atelier · Designed for focused minds</footer>
+
+<script>
+// ─── TIMER ───────────────────────────────────────────────
+let totalSeconds = 600;
+let remainingSeconds = 600;
+let timerInterval = null;
+let isRunning = false;
+
+const CIRCUMFERENCE = 2 * Math.PI * 80; // ≈ 502.65
+
+function setDuration(mins, btn) {
+  if (isRunning) return;
+  document.querySelectorAll('.btn-duration').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  totalSeconds = mins * 60;
+  remainingSeconds = totalSeconds;
+  updateClockDisplay();
+  updateRing(1);
+  document.getElementById('timerClock').className = 'timer-clock';
+}
+
+function startTimer() {
+  if (isRunning) return;
+  isRunning = true;
+  document.getElementById('timerClock').classList.add('running');
+  timerInterval = setInterval(tick, 1000);
+}
+
+function pauseTimer() {
+  if (!isRunning) return;
+  isRunning = false;
+  clearInterval(timerInterval);
+  document.getElementById('timerClock').classList.remove('running');
+}
+
+function resetTimer() {
+  pauseTimer();
+  remainingSeconds = totalSeconds;
+  updateClockDisplay();
+  updateRing(1);
+  document.getElementById('timerClock').className = 'timer-clock';
+}
+
+function tick() {
+  if (remainingSeconds <= 0) {
+    pauseTimer();
+    remainingSeconds = 0;
+    updateClockDisplay();
+    updateRing(0);
+    document.getElementById('timerClock').className = 'timer-clock ending';
+    playChime();
+    showToast('⏰ Phiên làm việc kết thúc!');
+    return;
+  }
+  remainingSeconds--;
+  updateClockDisplay();
+  updateRing(remainingSeconds / totalSeconds);
+  if (remainingSeconds <= 10) {
+    document.getElementById('timerClock').classList.add('ending');
+  }
+}
+
+function updateClockDisplay() {
+  const m = Math.floor(remainingSeconds / 60).toString().padStart(2, '0');
+  const s = (remainingSeconds % 60).toString().padStart(2, '0');
+  document.getElementById('timerClock').textContent = `${m}:${s}`;
+}
+
+function updateRing(fraction) {
+  const offset = CIRCUMFERENCE * (1 - fraction);
+  document.getElementById('ringProgress').style.strokeDashoffset = offset;
+  document.getElementById('ringProgress').style.strokeDasharray = CIRCUMFERENCE;
+  if (fraction <= 0.2) {
+    document.getElementById('ringProgress').style.stroke = '#c0392b';
+  } else {
+    document.getElementById('ringProgress').style.stroke = 'var(--gold-line)';
+  }
+}
+
+// Init ring & clock
+updateRing(1);
+updateClockDisplay();
+
+// ─── CHIME (Web Audio API) ────────────────────────────────
+function playChime() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const notes = [523.25, 659.25, 783.99, 1046.50]; // C5 E5 G5 C6
+    notes.forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, ctx.currentTime);
+      const start = ctx.currentTime + i * 0.28;
+      const end = start + 1.1;
+      gain.gain.setValueAtTime(0, start);
+      gain.gain.linearRampToValueAtTime(0.22, start + 0.04);
+      gain.gain.exponentialRampToValueAtTime(0.001, end);
+      osc.start(start);
+      osc.stop(end);
+    });
+  } catch(e) { console.warn('Audio not available', e); }
+}
+
+// ─── TASK TABLE ───────────────────────────────────────────
+let rows = [];
+
+function todayStr() {
+  return new Date().toISOString().slice(0, 10);
+}
+function nowStr() {
+  const d = new Date();
+  return d.toTimeString().slice(0, 5);
+}
+
+function addRow(data) {
+  const id = Date.now() + Math.random();
+  const row = data || { id, date: todayStr(), time: nowStr(), task: '', link: '' };
+  if (!data) row.id = id;
+  rows.push(row);
+  renderTable();
+  saveToBrowser();
+}
+
+function deleteRow(id) {
+  rows = rows.filter(r => r.id !== id);
+  renderTable();
+  saveToBrowser();
+}
+
+function updateRow(id, field, value) {
+  const r = rows.find(r => r.id === id);
+  if (r) { r[field] = value; saveToBrowser(); }
+}
+
+function renderTable() {
+  const tbody = document.getElementById('taskBody');
+  tbody.innerHTML = '';
+  rows.forEach(row => {
+    const tr = document.createElement('tr');
+    // Link cell: show input OR link
+    const linkCell = row.link
+      ? `<div class="link-display">
+           <a href="${escHtml(row.link)}" target="_blank" rel="noopener">${shortUrl(row.link)}</a>
+           <input type="text" class="cell-input" value="${escHtml(row.link)}" style="font-size:0.7rem;margin-top:3px;"
+             onchange="updateRow(${JSON.stringify(row.id)}, 'link', this.value); renderTable();"
+             onfocus="this.select()">
+         </div>`
+      : `<input type="text" class="cell-input" placeholder="https://..." value="${escHtml(row.link)}"
+           onchange="updateRow(${JSON.stringify(row.id)}, 'link', this.value); renderTable();">`;
+
+    tr.innerHTML = `
+      <td><input type="date" class="cell-input" value="${escHtml(row.date)}"
+        onchange="updateRow(${JSON.stringify(row.id)}, 'date', this.value)"></td>
+      <td><input type="time" class="cell-input" value="${escHtml(row.time)}"
+        onchange="updateRow(${JSON.stringify(row.id)}, 'time', this.value)"></td>
+      <td><input type="text" class="cell-input" placeholder="Mô tả công việc..." value="${escHtml(row.task)}"
+        onchange="updateRow(${JSON.stringify(row.id)}, 'task', this.value)"></td>
+      <td>${linkCell}</td>
+      <td><button class="btn-del" onclick="deleteRow(${JSON.stringify(row.id)})" title="Xóa">×</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+  document.getElementById('rowCount').textContent = rows.length + ' mục';
+}
+
+function escHtml(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function shortUrl(url) {
+  try { return new URL(url).hostname.replace('www.',''); } catch { return url.slice(0,20)+'…'; }
+}
+
+// ─── LOCALSTORAGE ─────────────────────────────────────────
+function saveToBrowser() {
+  localStorage.setItem('wa_rows', JSON.stringify(rows));
+}
+function loadFromBrowser() {
+  try {
+    const saved = JSON.parse(localStorage.getItem('wa_rows') || '[]');
+    rows = saved;
+    renderTable();
+  } catch {}
+  // Load settings
+  document.getElementById('sheetId').value = localStorage.getItem('wa_sheetId') || '';
+  document.getElementById('apiKey').value = localStorage.getItem('wa_apiKey') || '';
+  document.getElementById('sheetName').value = localStorage.getItem('wa_sheetName') || 'Sheet1';
+}
+
+['sheetId','apiKey','sheetName'].forEach(id => {
+  document.getElementById(id).addEventListener('input', function() {
+    localStorage.setItem('wa_' + id, this.value);
+  });
+});
+
+// ─── SETTINGS TOGGLE ─────────────────────────────────────
+function toggleSettings() {
+  const body = document.getElementById('settingsBody');
+  const icon = document.getElementById('toggleIcon');
+  body.classList.toggle('open');
+  icon.style.transform = body.classList.contains('open') ? 'rotate(180deg)' : '';
+}
+
+// ─── GOOGLE SHEETS SYNC ───────────────────────────────────
+async function saveToSheet() {
+  const spreadsheetId = document.getElementById('sheetId').value.trim();
+  const apiKey = document.getElementById('apiKey').value.trim();
+  const sheetName = document.getElementById('sheetName').value.trim() || 'Sheet1';
+
+  if (!spreadsheetId || !apiKey) {
+    showSaveMsg('Vui lòng nhập Spreadsheet ID và API Key.', true);
+    return;
+  }
+  if (rows.length === 0) {
+    showSaveMsg('Không có dữ liệu để lưu.', true);
+    return;
+  }
+
+  const values = rows.map(r => [r.date, r.time, r.task, r.link]);
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent(sheetName)}:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS&key=${apiKey}`;
+
+  try {
+    showSaveMsg('Đang lưu…', false);
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ values })
+    });
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error?.message || 'Lỗi không xác định');
+    }
+    showSaveMsg(`✓ Đã lưu ${rows.length} dòng thành công!`, false);
+    showToast('Dữ liệu đã được lưu lên Google Sheets');
+  } catch(e) {
+    showSaveMsg('Lỗi: ' + e.message, true);
+  }
+}
+
+function showSaveMsg(msg, isError) {
+  const el = document.getElementById('saveMsg');
+  el.textContent = msg;
+  el.className = 'save-msg show' + (isError ? ' error' : '');
+  if (!isError) setTimeout(() => el.classList.remove('show'), 4000);
+}
+
+// ─── TOAST ───────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+// ─── INIT ─────────────────────────────────────────────────
+loadFromBrowser();
+if (rows.length === 0) addRow(); // start with 1 empty row
+</script>
+</body>
+</html>
