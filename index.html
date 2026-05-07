@@ -130,7 +130,7 @@
   /* ── TIMER ── */
   .timer-display {
     text-align: center;
-    margin-bottom: 32px;
+    margin-bottom: 28px;
   }
 
   .timer-clock {
@@ -227,39 +227,7 @@
   }
   .btn-reset:hover { color: var(--text-mid); border-color: var(--text-soft); }
 
-  /* Progress arc */
-  .timer-ring-wrap {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 18px;
-  }
-  .timer-ring {
-    position: relative;
-    width: 180px;
-    height: 180px;
-  }
-  .timer-ring svg {
-    position: absolute;
-    top: 0; left: 0;
-    transform: rotate(-90deg);
-  }
-  .ring-bg { fill: none; stroke: var(--cream); stroke-width: 3; }
-  .ring-progress {
-    fill: none;
-    stroke: var(--gold-line);
-    stroke-width: 3;
-    stroke-linecap: round;
-    stroke-dasharray: 502;
-    stroke-dashoffset: 0;
-    transition: stroke-dashoffset 1s linear, stroke 0.4s;
-  }
-  .timer-inner {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
+  /* Progress arc removed */
 
   /* ── TABLE ── */
   .table-controls {
@@ -524,16 +492,8 @@
   <div class="card">
     <div class="section-label">Đồng hồ tập trung</div>
 
-    <div class="timer-ring-wrap">
-      <div class="timer-ring">
-        <svg viewBox="0 0 180 180" width="180" height="180">
-          <circle class="ring-bg" cx="90" cy="90" r="80"/>
-          <circle class="ring-progress" id="ringProgress" cx="90" cy="90" r="80"/>
-        </svg>
-        <div class="timer-inner">
-          <div class="timer-clock" id="timerClock" data-label="phút còn lại">10:00</div>
-        </div>
-      </div>
+    <div class="timer-display">
+      <div class="timer-clock" id="timerClock" data-label="phút còn lại">10:00</div>
     </div>
 
     <div class="duration-row">
@@ -582,18 +542,10 @@
     </div>
 
     <div class="settings-body" id="settingsBody">
-      <div class="field-group">
+      <div class="field-group" style="grid-template-columns:1fr;">
         <div class="field">
-          <label>Spreadsheet ID</label>
-          <input type="text" id="sheetId" placeholder="1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms">
-        </div>
-        <div class="field">
-          <label>API Key</label>
-          <input type="text" id="apiKey" placeholder="AIzaSy...">
-        </div>
-        <div class="field">
-          <label>Tên Sheet</label>
-          <input type="text" id="sheetName" placeholder="Sheet1" value="Sheet1">
+          <label>Apps Script URL</label>
+          <input type="text" id="scriptUrl" placeholder="https://script.google.com/macros/s/..." value="https://script.google.com/macros/s/AKfycbwQtgA2pzMPQ5YU_EKfC9fjmtP5XEiaGFPb9VVw4P8sG7Yr67CGJLblMr0e0lvuzFv3jg/exec">
         </div>
       </div>
       <div class="settings-footer">
@@ -626,7 +578,6 @@ function setDuration(mins, btn) {
   totalSeconds = mins * 60;
   remainingSeconds = totalSeconds;
   updateClockDisplay();
-  updateRing(1);
   document.getElementById('timerClock').className = 'timer-clock';
 }
 
@@ -648,7 +599,6 @@ function resetTimer() {
   pauseTimer();
   remainingSeconds = totalSeconds;
   updateClockDisplay();
-  updateRing(1);
   document.getElementById('timerClock').className = 'timer-clock';
 }
 
@@ -657,7 +607,6 @@ function tick() {
     pauseTimer();
     remainingSeconds = 0;
     updateClockDisplay();
-    updateRing(0);
     document.getElementById('timerClock').className = 'timer-clock ending';
     playChime();
     showToast('⏰ Phiên làm việc kết thúc!');
@@ -665,7 +614,6 @@ function tick() {
   }
   remainingSeconds--;
   updateClockDisplay();
-  updateRing(remainingSeconds / totalSeconds);
   if (remainingSeconds <= 10) {
     document.getElementById('timerClock').classList.add('ending');
   }
@@ -688,8 +636,7 @@ function updateRing(fraction) {
   }
 }
 
-// Init ring & clock
-updateRing(1);
+// Init clock
 updateClockDisplay();
 
 // ─── CHIME (Web Audio API) ────────────────────────────────
@@ -733,6 +680,13 @@ function addRow(data) {
   rows.push(row);
   renderTable();
   saveToBrowser();
+  // Autofocus last task input if this is a new (non-restore) row
+  if (!data) {
+    setTimeout(() => {
+      const inputs = document.querySelectorAll('#taskBody tr td:nth-child(3) input');
+      if (inputs.length) inputs[inputs.length - 1].focus();
+    }, 30);
+  }
 }
 
 function deleteRow(id) {
@@ -794,16 +748,13 @@ function loadFromBrowser() {
     rows = saved;
     renderTable();
   } catch {}
-  // Load settings
-  document.getElementById('sheetId').value = localStorage.getItem('wa_sheetId') || '';
-  document.getElementById('apiKey').value = localStorage.getItem('wa_apiKey') || '';
-  document.getElementById('sheetName').value = localStorage.getItem('wa_sheetName') || 'Sheet1';
+  // Load script URL
+  const saved_url = localStorage.getItem('wa_scriptUrl');
+  if (saved_url) document.getElementById('scriptUrl').value = saved_url;
 }
 
-['sheetId','apiKey','sheetName'].forEach(id => {
-  document.getElementById(id).addEventListener('input', function() {
-    localStorage.setItem('wa_' + id, this.value);
-  });
+document.getElementById('scriptUrl').addEventListener('input', function() {
+  localStorage.setItem('wa_scriptUrl', this.value);
 });
 
 // ─── SETTINGS TOGGLE ─────────────────────────────────────
@@ -814,14 +765,12 @@ function toggleSettings() {
   icon.style.transform = body.classList.contains('open') ? 'rotate(180deg)' : '';
 }
 
-// ─── GOOGLE SHEETS SYNC ───────────────────────────────────
+// ─── GOOGLE SHEETS SYNC (Apps Script) ────────────────────
 async function saveToSheet() {
-  const spreadsheetId = document.getElementById('sheetId').value.trim();
-  const apiKey = document.getElementById('apiKey').value.trim();
-  const sheetName = document.getElementById('sheetName').value.trim() || 'Sheet1';
+  const scriptUrl = document.getElementById('scriptUrl').value.trim();
 
-  if (!spreadsheetId || !apiKey) {
-    showSaveMsg('Vui lòng nhập Spreadsheet ID và API Key.', true);
+  if (!scriptUrl) {
+    showSaveMsg('Vui lòng nhập Apps Script URL.', true);
     return;
   }
   if (rows.length === 0) {
@@ -829,24 +778,21 @@ async function saveToSheet() {
     return;
   }
 
-  const values = rows.map(r => [r.date, r.time, r.task, r.link]);
-  const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${encodeURIComponent(sheetName)}:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS&key=${apiKey}`;
+  const payload = { rows: rows.map(r => [r.date, r.time, r.task, r.link]) };
 
   try {
     showSaveMsg('Đang lưu…', false);
-    const res = await fetch(url, {
+    const res = await fetch(scriptUrl, {
       method: 'POST',
+      mode: 'no-cors',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ values })
+      body: JSON.stringify(payload)
     });
-    if (!res.ok) {
-      const err = await res.json();
-      throw new Error(err.error?.message || 'Lỗi không xác định');
-    }
-    showSaveMsg(`✓ Đã lưu ${rows.length} dòng thành công!`, false);
-    showToast('Dữ liệu đã được lưu lên Google Sheets');
+    // no-cors returns opaque response — assume success if no error thrown
+    showSaveMsg(`✓ Đã gửi ${rows.length} dòng lên Google Sheets!`, false);
+    showToast('✓ Dữ liệu đã được lưu lên Google Sheets');
   } catch(e) {
-    showSaveMsg('Lỗi: ' + e.message, true);
+    showSaveMsg('Lỗi kết nối: ' + e.message, true);
   }
 }
 
@@ -864,6 +810,14 @@ function showToast(msg) {
   t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 3500);
 }
+
+// ─── KEYBOARD SHORTCUTS ──────────────────────────────────
+document.addEventListener('keydown', function(e) {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'd') {
+    e.preventDefault();
+    addRow();
+  }
+});
 
 // ─── INIT ─────────────────────────────────────────────────
 loadFromBrowser();
